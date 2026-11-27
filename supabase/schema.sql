@@ -232,6 +232,39 @@ begin
   on conflict (user_id, day) do nothing;
 end $$;
 
+-- ---------------------------------------------------------------------
+-- SAUVEGARDE DANS LE CLOUD (progression complète, privée)
+-- Permet de tout retrouver après une réinstallation ou sur un autre téléphone
+-- une fois le compte lié à une adresse e-mail.
+-- ---------------------------------------------------------------------
+
+create table if not exists public.saves (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  data       jsonb not null check (jsonb_typeof(data) = 'object' and pg_column_size(data) < 262144),
+  updated_at timestamptz not null default now()
+);
+alter table public.saves enable row level security;
+
+drop policy if exists "sauvegarde lisible : la mienne seulement" on public.saves;
+create policy "sauvegarde lisible : la mienne seulement" on public.saves
+  for select to authenticated
+  using (user_id = auth.uid());
+
+revoke all on public.saves from anon;
+revoke insert, update, delete on public.saves from authenticated;
+grant select on public.saves to authenticated;
+
+-- Enregistre la progression complète + met à jour le résumé visible par les amis
+create or replace function public.save_progress(p_data jsonb, p_xp int, p_level int, p_streak int, p_chars int, p_lessons int)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'Non connecté'; end if;
+  insert into public.saves (user_id, data, updated_at)
+  values (auth.uid(), p_data, now())
+  on conflict (user_id) do update set data = excluded.data, updated_at = now();
+  perform public.sync_progress(p_xp, p_level, p_streak, p_chars, p_lessons);
+end $$;
+
 -- Droits d'exécution : seulement les joueurs connectés
 revoke execute on function public.is_friend(uuid, uuid)                        from public, anon;
 revoke execute on function public.ensure_profile(text)                         from public, anon;
@@ -242,6 +275,7 @@ revoke execute on function public.send_challenge(uuid, text, int, uuid)        f
 revoke execute on function public.open_challenge(uuid)                         from public, anon;
 revoke execute on function public.complete_challenge(uuid, text)               from public, anon;
 revoke execute on function public.submit_daily(date, int, int)                 from public, anon;
+revoke execute on function public.save_progress(jsonb, int, int, int, int, int) from public, anon;
 
 grant execute on function public.is_friend(uuid, uuid)                         to authenticated;
 grant execute on function public.ensure_profile(text)                          to authenticated;
@@ -252,3 +286,4 @@ grant execute on function public.send_challenge(uuid, text, int, uuid)         t
 grant execute on function public.open_challenge(uuid)                          to authenticated;
 grant execute on function public.complete_challenge(uuid, text)                to authenticated;
 grant execute on function public.submit_daily(date, int, int)                  to authenticated;
+grant execute on function public.save_progress(jsonb, int, int, int, int, int)  to authenticated;
