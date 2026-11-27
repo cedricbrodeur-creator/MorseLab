@@ -23,7 +23,7 @@
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 var(--sans);overscroll-behavior:none;-webkit-font-smoothing:antialiased}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 var(--sans);overscroll-behavior:none;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 button{font:inherit;color:inherit;cursor:pointer}
 svg.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 #flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:50}
@@ -238,7 +238,7 @@ select{-webkit-appearance:none;appearance:none;width:auto;font-size:15px;padding
 .unit .uc span{display:flex;flex-direction:column;align-items:center;gap:4px;font:700 20px var(--mono)}
 .unit .uc .mg{--h:4px;--g:2px}
 .nodes{display:flex;flex-direction:column;align-items:center;gap:18px}
-.nwrap{position:relative;display:flex;align-items:center;justify-content:center;width:100%}
+.nwrap{position:relative;display:flex;align-items:center;justify-content:center;width:max-content;margin:0 auto}
 .nwrap.here{margin-top:34px}
 .node{position:relative;width:70px;height:64px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--s3);color:var(--mu2);box-shadow:0 6px 0 #0A0908;transition:transform .1s}
 .node:active{transform:translateY(4px);box-shadow:0 2px 0 #0A0908}
@@ -378,11 +378,16 @@ main.les{padding-bottom:200px}
 .cmp{font:700 22px var(--mono);letter-spacing:.12em;word-break:break-word;margin:8px 0}
 
 /* ---- scène : bouteille à la mer ---- */
-#ov{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,7,6,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-#ov.on{display:flex}
-.ov-in{position:relative;width:100%;max-width:460px}
-.skipb{position:absolute;top:10px;right:10px;z-index:5;background:rgba(0,0,0,.4);border:0;color:#F2E4C4;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px}
-.scene{position:relative;aspect-ratio:3/2;border-radius:20px;overflow:hidden;background:linear-gradient(#10151F,#1E2A3B 58%);border:1px solid var(--line2)}
+#ov{position:fixed;inset:0;z-index:60;display:none;overflow:hidden;background:linear-gradient(#090D15,#141C29 55%,#1E2A3B)}
+#ov.on{display:block;animation:ovin .4s ease-out}
+@keyframes ovin{from{opacity:0}}
+.ov-in{position:absolute;inset:0}
+.moon{position:absolute;top:calc(env(safe-area-inset-top) + 7%);right:12%;width:62px;height:62px;border-radius:50%;background:radial-gradient(circle at 38% 36%,#E2D0AA 0 9%,transparent 10%),radial-gradient(circle at 62% 64%,#E2D0AA 0 6%,transparent 7%),#F2E4C4;box-shadow:0 0 0 22px rgba(242,228,196,.06),0 0 60px 20px rgba(242,228,196,.08)}
+.stars i{position:absolute;width:3px;height:3px;border-radius:50%;background:#F2E4C4;animation:tw 2.6s ease-in-out infinite}
+.skipb{position:absolute;top:calc(env(safe-area-inset-top) + 14px);right:14px;z-index:5;background:rgba(0,0,0,.4);border:0;color:#F2E4C4;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px}
+.scene{position:absolute;left:0;right:0;bottom:0;width:100%;aspect-ratio:3/2;overflow:hidden}
+/* téléphone en portrait : la plage est agrandie et recadrée sur l'action (30 % → 92 % de la scène) */
+@media (orientation:portrait){.scene{width:161vw;left:-48vw;right:auto}}
 .scene .bg{position:absolute;inset:0;width:100%;height:100%}
 .scene .tw{animation:tw 2.4s ease-in-out infinite}.scene .t2{animation-delay:.8s}.scene .t3{animation-delay:1.6s}
 @keyframes tw{50%{opacity:.25}}
@@ -401,10 +406,10 @@ main.les{padding-bottom:200px}
 .held .a-bob{animation:none;transform:rotate(-14deg)}
 .uncorked .ck{display:none}
 /* arrivée */
-.arrive .a-bottle{animation:drift 2.6s ease-out .2s both,beach .6s ease-in-out 2.8s forwards,lift .45s ease-out 3.75s forwards}
+.arrive .a-bottle{animation:drift 2.6s cubic-bezier(.25,.6,.45,1) .2s both,beach .6s ease-in-out 2.8s forwards,lift .45s ease-out 3.75s forwards}
 @keyframes drift{from{left:-16%}to{left:38%}}
-@keyframes beach{to{left:49%;bottom:17%}}
-@keyframes lift{to{left:60%;bottom:30%}}
+@keyframes beach{from{left:38%;bottom:12%}to{left:49%;bottom:17%}}
+@keyframes lift{from{left:49%;bottom:17%}to{left:60%;bottom:30%}}
 .arrive .a-bip{animation:walkin 1.3s ease-out 2.2s both}
 @keyframes walkin{from{left:108%}to{left:64%}}
 .arrive .a-cork{left:63.5%;bottom:58%;animation:pop .8s ease-out 4.25s forwards}
@@ -412,16 +417,16 @@ main.les{padding-bottom:200px}
 /* lancer */
 .throw .a-bottle{left:60%;bottom:30%;animation:tossx 1.05s linear 1.05s forwards,away 2.4s ease-in 2.3s forwards}
 .throw .a-bob{animation:tossy 1.05s ease-in-out 1.05s forwards}
-@keyframes tossx{to{left:20%;bottom:12%}}
+@keyframes tossx{to{left:35%;bottom:12%}}
 @keyframes tossy{0%{transform:translateY(0) rotate(-14deg)}45%{transform:translateY(-190%) rotate(260deg)}100%{transform:translateY(0) rotate(430deg)}}
-@keyframes away{to{left:-22%;bottom:16%;transform:scale(.55)}}
+@keyframes away{from{left:35%;bottom:12%}to{left:-22%;bottom:16%;transform:scale(.55)}}
 .throw.float .a-bob{animation:bobw 1.8s ease-in-out infinite}
 .throw .a-bip .masc{transform-origin:50% 95%;animation:windup .7s ease-in-out .45s both}
 @keyframes windup{55%{transform:rotate(12deg) translateX(5%)}100%{transform:rotate(-7deg) translateX(-4%)}}
-.throw .a-splash{left:15%;bottom:9%;animation:splash .9s ease-out 2.05s both}
+.throw .a-splash{left:31%;bottom:9%;animation:splash .9s ease-out 2.05s both}
 @keyframes splash{0%{opacity:.9;transform:scale(.2)}100%{opacity:0;transform:scale(1.7)}}
 /* la lettre (carte) */
-.letter{position:relative;margin:-26px 12px 0;z-index:6;background:#EFE0C0;color:#2A1C15;border-radius:6px 6px 16px 16px;padding:22px 18px 16px;box-shadow:0 14px 34px rgba(0,0,0,.55);transform-origin:top center;animation:unroll .55s cubic-bezier(.3,1.3,.5,1) var(--d,4.7s) both}
+.letter{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 19%);width:min(420px,calc(100% - 40px));margin:0 auto;z-index:6;background:#EFE0C0;color:#2A1C15;border-radius:6px 6px 16px 16px;padding:22px 18px 16px;box-shadow:0 14px 34px rgba(0,0,0,.55);transform-origin:top center;animation:unroll .55s cubic-bezier(.3,1.3,.5,1) var(--d,4.7s) both}
 .letter::before{content:"";position:absolute;left:-6px;right:-6px;top:-8px;height:16px;border-radius:8px;background:#E2CFA6;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
 @keyframes unroll{from{transform:scaleY(.04);opacity:0}}
 .letter h3{margin:0 0 6px;font-size:21px;letter-spacing:-.01em}
@@ -543,7 +548,6 @@ const bottleSvg=()=>`<svg class="btl" viewBox="0 0 40 90" aria-hidden="true">
 /* Décor : nuit, lune, mer et plage */
 const SCENE_BG=`<svg class="bg" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
   <g fill="#F2E4C4"><circle class="tw" cx="30" cy="24" r="1.2"/><circle class="tw t2" cx="78" cy="48" r="1"/><circle class="tw t3" cx="120" cy="18" r="1.4"/><circle class="tw" cx="176" cy="40" r="1"/><circle class="tw t2" cx="206" cy="14" r="1.2"/><circle class="tw t3" cx="58" cy="78" r=".9"/></g>
-  <circle cx="250" cy="38" r="26" fill="#F2E4C4" opacity=".08"/><circle cx="250" cy="38" r="14" fill="#F2E4C4"/><circle cx="245" cy="34" r="3" fill="#E2D0AA"/><circle cx="254" cy="42" r="2" fill="#E2D0AA"/>
   <rect x="0" y="118" width="300" height="82" fill="#1B3346"/>
   <path d="M0 126h300" stroke="#F2E4C4" stroke-opacity=".12" stroke-width="2" stroke-dasharray="3 9"/>
   <path d="M150 200V146c18-14 40-22 70-24s56 0 80-4v82z" fill="#A88A5C"/>
@@ -841,7 +845,8 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');
 /* ---- Scène animée : bouteille qui arrive / bouteille qu'on lance ---- */
 let ovT=[];const ovAt=(ms,fn)=>ovT.push(setTimeout(fn,ms));
 function closeOv(){ovT.forEach(clearTimeout);ovT=[];const o=$('#ov');o.className='';o.innerHTML=''}
-const sceneHTML=kind=>`<div class="scene ${kind}" id="scene">${SCENE_BG}<div class="a-splash"></div><div class="a-bip">${mascot('idle')}</div><div class="a-bottle"><div class="a-bob">${bottleSvg()}</div></div><div class="a-cork"></div></div>`;
+const STARS=Array.from({length:22},(_,i)=>`<i style="left:${(i*37+11)%97}%;top:${(i*23+5)%52}%;animation-delay:${(i%7)*.4}s;opacity:${.35+(i%4)*.18}"></i>`).join('');
+const sceneHTML=kind=>`<div class="moon"></div><div class="stars">${STARS}</div><div class="scene ${kind}" id="scene">${SCENE_BG}<div class="a-splash"></div><div class="a-bip">${mascot('idle')}</div><div class="a-bottle"><div class="a-bob">${bottleSvg()}</div></div><div class="a-cork"></div></div>`;
 function setBip(mood,cls){const b=document.querySelector('#scene .a-bip');if(b)b.innerHTML=mascot(mood,cls||'')}
 function bottleArrive(c){SOC.shown.add(c.id);const from=nameOf(c.from_id),o=$('#ov');ovT.forEach(clearTimeout);ovT=[];
   o.innerHTML=`<div class="ov-in"><button class="skipb" data-a="ovskip">Passer</button>${sceneHTML('arrive')}
