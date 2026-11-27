@@ -607,9 +607,16 @@ function vibFallback(d){
   try{navigator.vibrate&&navigator.vibrate(d)}catch{} }
 function flash(on){ if(cfg.flash)$('#flash').style.opacity=on?1:0; }
 function lamp(on){ document.querySelectorAll('.lamp').forEach(l=>l.classList.toggle('on',on)); }
-let torchOn=false;
-function torch(on){ if(!cfg.torch||!Torch||torchOn===on)return; torchOn=on; (on?Torch.enable():Torch.disable()).catch(()=>{}); }
-function allOff(){ $('#flash').style.opacity=0; lamp(false); if(torchOn&&Torch){torchOn=false;Torch.disable().catch(()=>{})} try{navigator.vibrate&&navigator.vibrate(0)}catch{} }
+/* Lampe : sur Android, MorseVibe.torch (choisit la caméra qui a vraiment un flash) ; sur iOS, plugin Torch */
+let torchOn=false,torchErr=false;
+const hasTorch=()=>!!(Vibe||Torch);
+function torchSet(on){return Vibe?Vibe.torch({on}):(on?Torch.enable():Torch.disable())}
+function torchFail(e){if(torchErr)return;torchErr=true;toast('Lampe torche : '+((e&&e.message)||'indisponible'))}
+function torch(on){ if(!cfg.torch||!hasTorch()||torchOn===on)return; torchOn=on; torchSet(on).catch(torchFail); }
+function allOff(){ $('#flash').style.opacity=0; lamp(false); if(torchOn&&hasTorch()){torchOn=false;torchSet(false).catch(()=>{})} try{navigator.vibrate&&navigator.vibrate(0)}catch{} }
+async function torchTest(){torchErr=false;
+  try{await torchSet(true);await new Promise(r=>setTimeout(r,350));await torchSet(false)}
+  catch(e){torchSet(false).catch(()=>{});torchFail(e)}}
 
 /* ============ MOTEUR DE LECTURE ============ */
 const unit=()=>1.2/cfg.wpm;
@@ -1295,7 +1302,7 @@ function vSet(){
 document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.cfg;if(!k)return;
   const t=e.target;cfg[k]=t.type==='checkbox'?t.checked:t.type==='range'?+t.value:t.value;
   if(k==='wpm'&&cfg.eff>cfg.wpm)cfg.eff=cfg.wpm;if(k==='eff'&&cfg.eff>cfg.wpm)cfg.wpm=cfg.eff;
-  if(k==='torch'&&cfg.torch&&Torch){Torch.isAvailable&&Torch.isAvailable().catch(()=>{})}
+  if(k==='torch'&&cfg.torch&&hasTorch())torchTest();
   if(t.type==='range')t.style.setProperty('--p',pct(+t.value,+t.min,+t.max));
   saveCfg();const l=$('#lab-'+k);if(l)l.textContent=fmt(k,cfg[k])});
 document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.cfg;if(k==='wpm'||k==='eff'||k==='keyer')render()});

@@ -1,6 +1,9 @@
 package com.morselab.app;
 
 import android.content.Context;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import com.getcapacitor.JSObject;
 import android.media.AudioAttributes;
 import android.os.Build;
 import android.os.VibrationAttributes;
@@ -65,6 +68,52 @@ public class MorseVibePlugin extends Plugin {
     public void cancel(PluginCall call) {
         if (vibrator != null) vibrator.cancel();
         call.resolve();
+    }
+
+    /* ---------- Lampe torche ----------
+     * On cherche la caméra qui a vraiment un flash (de préférence l'arrière) au lieu de prendre la n° 0,
+     * qui sur certains téléphones n'en a pas. Les erreurs sont renvoyées à l'app pour être affichées. */
+    private String torchId;
+
+    private String findTorch() throws Exception {
+        if (torchId != null) return torchId;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) throw new Exception("Android 6 minimum pour la lampe");
+        CameraManager cm = (CameraManager) getContext().getSystemService(Context.CAMERA_SERVICE);
+        if (cm == null) throw new Exception("Caméra indisponible");
+        String fallback = null;
+        for (String id : cm.getCameraIdList()) {
+            CameraCharacteristics c = cm.getCameraCharacteristics(id);
+            Boolean fl = c.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+            if (fl == null || !fl) continue;
+            Integer f = c.get(CameraCharacteristics.LENS_FACING);
+            if (f != null && f == CameraCharacteristics.LENS_FACING_BACK) { torchId = id; return id; }
+            if (fallback == null) fallback = id;
+        }
+        if (fallback == null) throw new Exception("Aucun flash trouvé sur ce téléphone");
+        torchId = fallback;
+        return fallback;
+    }
+
+    @PluginMethod
+    public void torch(PluginCall call) {
+        boolean on = Boolean.TRUE.equals(call.getBoolean("on", false));
+        try {
+            String id = findTorch();
+            CameraManager cm = (CameraManager) getContext().getSystemService(Context.CAMERA_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) cm.setTorchMode(id, on);
+            call.resolve();
+        } catch (Exception e) {
+            String m = e.getMessage();
+            call.reject(m != null ? m : "Lampe indisponible");
+        }
+    }
+
+    @PluginMethod
+    public void torchAvailable(PluginCall call) {
+        JSObject r = new JSObject();
+        try { findTorch(); r.put("available", true); }
+        catch (Exception e) { r.put("available", false); r.put("reason", e.getMessage()); }
+        call.resolve(r);
     }
 
     @SuppressWarnings("deprecation")
