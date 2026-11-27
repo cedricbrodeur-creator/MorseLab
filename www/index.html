@@ -1241,12 +1241,9 @@ function vSet(){
   <button class="btn sec" data-a="test">${ic('play')}Tester · CQ</button></div>
   <h2>Manipulateur</h2><div class="card"><div class="set"><span>Mode</span><select data-cfg="keyer">${KMODES.map(([k,l])=>`<option value="${k}" ${cfg.keyer===k?'selected':''}>${l}</option>`).join('')}</select></div>${tg('swap','Inverser les palettes')}</div>
   <h2>Entraînement</h2><div class="card">
-  <div class="set col"><div class="row"><span>Caractères débloqués</span><span class="v" id="lab-plv">${prog.lv} / ${KOCH.length}</span></div><input type="range" data-prog="lv" min="2" max="${KOCH.length}" step="1" value="${prog.lv}" style="--p:${pct(prog.lv,2,KOCH.length)}"><span class="note" id="plv-chars" style="margin:0">${esc(KOCH.slice(0,prog.lv))}</span></div>
   ${tg('hint','Indice','Affiche le nombre de caractères à trouver')}
   <button class="btn sec" data-a="reset">Réinitialiser la progression</button></div>
-  <div class="foot">${LOGO}<span>Aucun compte, aucune donnée envoyée</span></div>`}
-document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.prog==='lv'){prog.lv=+t.value;saveProg();
-    t.style.setProperty('--p',pct(+t.value,+t.min,+t.max));const l=$('#lab-plv');if(l)l.textContent=`${prog.lv} / ${KOCH.length}`;const c=$('#plv-chars');if(c)c.textContent=KOCH.slice(0,prog.lv);return}});
+  <div class="foot">${LOGO}<span>Rien n'est envoyé en ligne sans profil Amis</span></div>`}
 document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.cfg;if(!k)return;
   const t=e.target;cfg[k]=t.type==='checkbox'?t.checked:t.type==='range'?+t.value:t.value;
   if(k==='wpm'&&cfg.eff>cfg.wpm)cfg.eff=cfg.wpm;if(k==='eff'&&cfg.eff>cfg.wpm)cfg.wpm=cfg.eff;
