@@ -3,6 +3,6 @@
    La clé anon est publique par conception : la sécurité est assurée par les règles RLS de supabase/schema.sql.
    Laisser vide pour désactiver les fonctions en ligne. */
 window.MORSELAB_SUPABASE = {
-  url: '',
-  anonKey: ''
+  url: 'https://uhcxrsklmlmewupeqpzq.supabase.co',
+  anonKey: 'sb_publishable_KglUSf0iaXEVaOULyCKexw_bgP9hdu6'
 };
