@@ -589,7 +589,7 @@ function sfx(ok){if(!cfg.audio)return;try{const c=ac(),t=c.currentTime;(ok?[[784
 function lCheck(){const z=S.les,it=lItem();if(z.st!=='ask'||!lCanCheck())return;stop();
   if(it.t==='intro'){lNext();return}
   const ans=it.t==='build'?z.built:it.t==='word'?z.ans.map(i=>it.bank[i]).join(''):it.o[z.sel];
-  const good=it.t==='see'?ans===M[it.c]:ans===it.c;
+  const good=it.t==='see'||it.t==='build'?ans===M[it.c]:ans===it.c;
   z.tot++;if(good){z.ok++;z.combo++;z.best=Math.max(z.best,z.combo)}else{z.combo=0;if(!it.retry)z.items.push(Object.assign({},it,{retry:true,o:it.o&&shuffle(it.o),bank:it.bank&&shuffle(it.bank)}))}
   if(it.t!=='word')recChar(it.c,good);else[...it.c].forEach(ch=>recChar(ch,good));
   z.st=good?'right':'wrong';sfx(good);if(cfg.vib&&!good)vib(120);render();
