@@ -1,0 +1,8 @@
+{
+  "appId": "com.morselab.app",
+  "appName": "MorseLab",
+  "webDir": "www",
+  "backgroundColor": "#0E0D0B",
+  "android": { "backgroundColor": "#0E0D0B" },
+  "ios": { "backgroundColor": "#0E0D0B" }
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Logo MorseLab : un point et un trait (zone sûre 66dp centrée) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#F0A43A"
+        android:pathData="M37,54m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0" />
+    <path
+        android:fillColor="#F0A43A"
+        android:pathData="M57,47L71,47A7,7 0,0 1,78 54A7,7 0,0 1,71 61L57,61A7,7 0,0 1,50 54A7,7 0,0 1,57 47Z" />
+</vector>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0E0D0B">
+<title>MorseLab</title>
+<style>
+:root{
+  --bg:#0E0D0B;--s1:#161512;--s2:#1D1B17;--s3:#25231E;--line:#2C2A25;--line2:#3A372F;
+  --tx:#ECE6DA;--mu:#8E887B;--mu2:#5F5A50;
+  --ac:#F0A43A;--ac-ink:#1A1206;--ac-dim:#3A2A12;
+  --ok:#8CC98A;--ok-bg:#16241A;--bad:#E8735A;--bad-bg:#2A1713;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 var(--sans);overscroll-behavior:none;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+svg.i{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:50}
+main{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 96px)}
+
+/* ---- en-tête ---- */
+.hd{display:flex;align-items:center;justify-content:space-between;height:44px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:650;letter-spacing:-.01em;font-size:15px}
+.brand svg{width:26px;height:12px;fill:var(--ac)}
+.wpm{background:none;border:1px solid var(--line);border-radius:999px;padding:5px 11px;font:12px var(--mono);color:var(--mu);letter-spacing:.04em}
+.wpm b{color:var(--tx);font-weight:600}
+h1{font-size:30px;line-height:1.1;font-weight:680;letter-spacing:-.025em;margin:18px 0 18px}
+.kick{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
+h2{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin:26px 2px 10px}
+
+/* ---- surfaces ---- */
+.card{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 12px}
+.card.flush{padding:0;overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.muted{color:var(--mu);font-size:14px}
+.center{text-align:center}
+.mono{font-family:var(--mono)}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.pend{color:var(--ac)}
+p{margin:10px 0}
+
+/* ---- boutons ---- */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;padding:14px;border:0;border-radius:10px;background:var(--ac);color:var(--ac-ink);font-weight:650;font-size:16px;transition:transform .08s}
+.btn svg.i{width:18px;height:18px}
+.btn.sec{background:var(--s2);color:var(--tx);border:1px solid var(--line)}
+.btn:active,.opt:active,.chip:active,.li:active{transform:scale(.985)}
+.btns{display:flex;gap:8px}.btns .btn{flex:1}
+.ghost{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:14px;color:var(--tx)}
+.ghost svg.i{width:16px;height:16px}
+.iconb{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--tx)}
+.iconb svg.i{width:18px;height:18px}
+
+/* ---- glyphes morse ---- */
+.mg{display:inline-flex;align-items:center;gap:var(--g,3px);vertical-align:middle}
+.mg i{display:block;height:var(--h,5px);border-radius:99px;background:currentColor}
+.mg .d{width:var(--h,5px)}.mg .h{width:calc(var(--h,5px)*3.2)}
+.mg.lg{--h:8px;--g:5px}
+
+/* ---- barres segmentées ---- */
+.seg{display:flex;gap:2px;margin:12px 0 4px}
+.seg i{flex:1;height:6px;border-radius:1px;background:var(--s3)}
+.seg i.f{background:var(--ac)}
+.seg i.n{background:var(--ac);opacity:.45}
+
+/* ---- Koch ---- */
+.koch-n{font:600 40px/1 var(--mono);letter-spacing:-.04em}
+.koch-n small{font-size:16px;color:var(--mu);letter-spacing:0;margin-left:4px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;margin:16px 0 4px}
+.chip{position:relative;height:52px;border-radius:8px;border:1px solid var(--line);background:var(--s2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font:600 17px var(--mono);padding:0}
+.chip .mg{--h:3px;--g:2px;color:var(--mu)}
+.chip.lock{background:none;border-style:dashed;color:var(--mu2);font-weight:400}
+.chip.new{border-color:var(--ac);color:var(--ac)}
+.chip.new .mg{color:var(--ac)}
+
+/* ---- progression ---- */
+.rank{font-size:20px;font-weight:650;letter-spacing:-.015em;margin-top:4px}
+.xp{font:600 26px/1 var(--mono);letter-spacing:-.03em;color:var(--ac)}
+.xp small{font-size:13px;color:var(--mu);letter-spacing:0}
+.bar{height:6px;background:var(--s3);border-radius:3px;margin:14px 0 8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ac);border-radius:3px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin:16px -16px 0;border-top:1px solid var(--line)}
+.stats div{padding:12px 16px 2px;border-left:1px solid var(--line)}
+.stats div:first-child{border-left:0}
+.stats b{display:block;font:600 22px var(--mono);letter-spacing:-.03em}
+.stats b small{font-size:13px;color:var(--mu)}
+.stats span{font-size:12px;color:var(--mu)}
+.week{display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.week div{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.week .b{position:relative;width:100%;height:48px;border-radius:4px;background:var(--s2)}
+.week .b i{position:absolute;left:0;right:0;bottom:0;border-radius:4px;background:var(--mu2)}
+.week .t .b i{background:var(--ac)}
+.week .l{font:11px var(--mono);color:var(--mu2)}
+.week .t .l{color:var(--tx)}
+.gain{display:inline-block;margin:14px 0 0;padding:5px 12px;border-radius:999px;border:1px solid var(--ac);color:var(--ac);font:600 14px var(--mono)}
+.chip .pc{font:500 10px var(--mono);color:var(--bad)}
+
+/* ---- liste / parcours ---- */
+.li{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;background:none;border:0;border-top:1px solid var(--line);color:var(--tx)}
+.li:first-child{border-top:0}
+.li .tag{flex:none;display:grid;place-items:center;min-width:46px;height:34px;padding:0 6px;border-radius:7px;background:var(--s2);border:1px solid var(--line);font:600 12px var(--mono);letter-spacing:.04em;color:var(--ac)}
+.li .t{flex:1;min-width:0}
+.li .t b{display:block;font-weight:600}
+.li .t span{display:block;color:var(--mu);font-size:14px;margin-top:1px}
+.li > svg.i{width:18px;height:18px;color:var(--mu2)}
+.steps{counter-reset:st;margin:6px 0 0;padding:0;list-style:none}
+.steps li{position:relative;padding:0 0 0 34px}
+.steps li::before{counter-increment:st;content:counter(st);position:absolute;left:0;top:13px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line2);font:600 11px/21px var(--mono);text-align:center;color:var(--mu)}
+.steps li::after{content:"";position:absolute;left:11px;top:37px;bottom:-11px;width:1px;background:var(--line)}
+.steps li:last-child::after{display:none}
+.steps li.done::before{background:var(--ac);border-color:var(--ac);color:var(--ac-ink)}
+.steps .li{border:0;padding:12px 0}
+
+/* ---- table ---- */
+details summary{list-style:none;display:flex;align-items:center;justify-content:space-between;font-weight:600}
+details summary::-webkit-details-marker{display:none}
+details summary svg.i{width:18px;height:18px;color:var(--mu);transition:transform .2s}
+details[open] summary svg.i{transform:rotate(90deg)}
+.tbl{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:12px}
+.tbl button{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--s2);font:600 15px var(--mono);color:var(--tx)}
+.tbl .mg{color:var(--ac)}
+
+/* ---- session ---- */
+.top{display:flex;align-items:center;gap:12px;height:44px;margin-bottom:6px}
+.top .kick{flex:1;text-align:center}
+.top .cnt{font:13px var(--mono);color:var(--mu);min-width:40px;text-align:right}
+.stage{padding:26px 16px 18px;text-align:center}
+.listen{display:inline-flex;flex-direction:column;align-items:center;gap:10px;background:none;border:0;color:var(--tx)}
+.listen .ring{position:relative;display:grid;place-items:center;width:96px;height:96px;border-radius:50%;border:1px solid var(--line2);background:var(--s2)}
+.listen .ring svg.i{width:30px;height:30px;color:var(--ac)}
+.listen span.l{font-size:14px;color:var(--mu)}
+.lamp{position:absolute;top:-3px;right:6px;width:12px;height:12px;border-radius:50%;background:var(--s3);border:2px solid var(--s1);transition:background .03s,box-shadow .03s}
+.lamp.on{background:var(--ac);box-shadow:0 0 12px 2px rgba(240,164,58,.55)}
+.slots{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:18px 0 6px}
+.slots i{width:14px;height:3px;border-radius:2px;background:var(--line2)}
+.slots i.sp{background:none;width:10px}
+input[type=text],textarea,select{width:100%;background:var(--s2);color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:13px 14px;font:inherit;outline:none}
+input[type=text]:focus,textarea:focus{border-color:var(--line2);background:var(--s3)}
+#ans{font:600 22px var(--mono);letter-spacing:.18em;text-transform:uppercase;text-align:center;margin-top:12px}
+#ans::placeholder{font:400 15px var(--sans);letter-spacing:0;text-transform:none;color:var(--mu2)}
+textarea{min-height:96px;resize:vertical;font-size:16px}
+.target{font:600 28px var(--mono);letter-spacing:.14em;text-align:center;margin:18px 0 8px;word-break:break-word}
+.score{font:600 64px/1 var(--mono);letter-spacing:-.05em;margin:14px 0 6px}
+.score small{font-size:24px;color:var(--mu);letter-spacing:0}
+.unlock{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0 4px;padding:12px;border-radius:10px;background:var(--ac-dim);color:var(--ac);font-weight:600}
+.unlock b{font:600 22px var(--mono)}
+.log{text-align:left;margin-top:14px}
+.log div{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font:14px var(--mono)}
+.log div svg.i{width:16px;height:16px}
+.log .e{flex:1;letter-spacing:.08em}
+.log .y{color:var(--mu);letter-spacing:.08em}
+.transcript{font:13px/1.7 var(--mono);color:var(--mu);text-align:left;background:var(--s2);border-radius:8px;padding:12px;margin:14px 0 0;letter-spacing:.04em}
+
+/* ---- quiz ---- */
+.q{font-size:19px;font-weight:600;line-height:1.35;margin:18px 0 6px;letter-spacing:-.01em}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:8px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--s2);font-size:16px}
+.opt .k{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:6px;border:1px solid var(--line2);font:600 12px var(--mono);color:var(--mu)}
+.opt .v{flex:1}
+.opt svg.i{width:18px;height:18px}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg)}.opt.ok .k{border-color:var(--ok);color:var(--ok)}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg)}.opt.bad .k{border-color:var(--bad);color:var(--bad)}
+.opt.dim{opacity:.5}
+
+/* ---- manipulateur ---- */
+.seglist{display:flex;background:var(--s1);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seglist button{flex:1;border:0;background:none;padding:9px 4px;border-radius:7px;font-size:14px;color:var(--mu)}
+.seglist button.on{background:var(--s3);color:var(--tx);font-weight:600}
+.lcd{background:#0A0908;border:1px solid var(--line);border-radius:10px;padding:14px;min-height:76px;font:600 24px var(--mono);letter-spacing:.14em;word-break:break-word}
+.lcd .pend{display:inline-flex;margin-left:6px}
+.fb{font:13px var(--mono);color:var(--mu);min-height:20px;margin-top:10px}
+.pads{display:flex;gap:10px;margin-top:12px}
+.pad{position:relative;flex:1;height:200px;border-radius:16px;border:1px solid var(--line2);background:linear-gradient(180deg,var(--s3),var(--s2));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;touch-action:none;user-select:none;-webkit-user-select:none;color:var(--tx)}
+.pad b{font:600 15px var(--mono);letter-spacing:.2em}
+.pad small{font-size:12px;color:var(--mu)}
+.pad .mg{--h:10px;--g:6px;color:var(--mu)}
+.pad .lamp{top:14px;right:14px;border-color:var(--s3)}
+.pad.down{border-color:var(--ac);background:linear-gradient(180deg,#2A2216,#211B12)}
+.pad.down .mg,.pad.down b{color:var(--ac)}
+.pad.sk{width:100%;flex:none;height:240px}
+.pad.sk svg.i{width:44px;height:44px;color:var(--mu);stroke-width:1.4}
+.pad.sk.down svg.i{color:var(--ac)}
+
+/* ---- réglages ---- */
+.set{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
+.set:first-child{border-top:0;padding-top:2px}
+.set.col{flex-direction:column;align-items:stretch;gap:6px}
+.set .v{font:13px var(--mono);color:var(--ac)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:none;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(var(--ac),var(--ac)) 0/var(--p,50%) 100% no-repeat,var(--s3)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-9px;border-radius:50%;background:var(--tx);border:4px solid var(--s1)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--s3)}
+input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--ac)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--tx);border:3px solid var(--s1)}
+.sw{-webkit-appearance:none;appearance:none;flex:none;position:relative;width:44px;height:26px;border-radius:13px;background:var(--s3);border:1px solid var(--line2);margin:0;transition:background .15s}
+.sw::before{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--mu);transition:transform .15s,background .15s}
+.sw:checked{background:var(--ac);border-color:var(--ac)}
+.sw:checked::before{transform:translateX(18px);background:var(--ac-ink)}
+select{-webkit-appearance:none;appearance:none;width:auto;font-size:15px;padding:9px 34px 9px 12px;background:var(--s2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238E887B' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E") no-repeat right 10px center/16px}
+.note{font-size:13px;color:var(--mu);margin:6px 0 0}
+.foot{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--mu2);font-size:13px;margin:24px 0 0}
+.foot svg{width:22px;height:10px;fill:var(--mu2)}
+
+/* ---- traducteur ---- */
+.out{background:#0A0908;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px;min-height:52px;font:15px/1.7 var(--mono);letter-spacing:.12em;word-break:break-word}
+.lbl{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.lbl b{font-weight:600}
+
+/* ---- navigation ---- */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;background:rgba(14,13,11,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav .in{display:flex;width:100%;max-width:560px}
+nav button{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:var(--mu2);padding:10px 0 9px;font-size:11px;font-weight:500;letter-spacing:.01em}
+nav button.on{color:var(--tx)}
+nav button.on::before{content:"";position:absolute;top:-1px;left:50%;width:20px;height:2px;margin-left:-10px;border-radius:0 0 2px 2px;background:var(--ac)}
+nav button.on svg.i{color:var(--ac)}
+</style>
+</head>
+<body>
+<div id="flash"></div>
+<main id="main"></main>
+<nav id="nav"></nav>
+<script>
+"use strict";
+/* ============ DONNÉES ============ */
+const M={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',
+0:'-----',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',
+'.':'.-.-.-',',':'--..--','?':'..--..','/':'-..-.','=':'-...-','+':'.-.-.','-':'-....-','(':'-.--.',')':'-.--.-',"'":'.----.','!':'-.-.--',':':'---...',';':'-.-.-.','@':'.--.-.','"':'.-..-.','&':'.-...',
+'<AR>':'.-.-.','<SK>':'...-.-','<BT>':'-...-','<KN>':'-.--.','<AS>':'.-...','<SOS>':'...---...'};
+const REV={};for(const k in M){if(k.length===1||!REV[M[k]])REV[M[k]]=k}
+const KOCH="KMURESNAPTLWI.JZ=FOY,VG5/Q92H38B?47C1D60X";
+const WORDS="THE AND YOU RADIO ANTENNA SIGNAL MORSE CODE PRACTICE WEATHER FIELD POWER RIG CLEAR CALL LOG BAND TOWER GROUND WIRE LOOP MAST HAM SUN MOON STAR RIVER MOUNTAIN COFFEE FRIEND HELLO THANKS WATT DIPOLE BEAM TUNER KEY PADDLE SPEED LISTEN SEND COPY NAME CITY RAIN SNOW WIND".split(' ');
+const PHRASES=["CQ CQ DE F4XYZ K","TNX FOR THE CALL","UR RST IS 599","MY NAME IS JEAN","QTH IS PARIS","WX IS SUNNY","73 AND GOOD DX","PSE QRS","RIG IS 5 WATTS","ANT IS A DIPOLE","HW COPY","SEE YOU TOMORROW","GM OM TNX FER QSO","QRZ DE W1ABC"];
+const QCODES=[['QRA','Nom de la station'],['QRG','Fréquence exacte'],['QRL','La fréquence est occupée'],['QRM','Interférences'],['QRN','Parasites atmosphériques'],['QRO','Augmenter la puissance'],['QRP','Diminuer la puissance'],['QRQ','Transmettre plus vite'],['QRS','Transmettre plus lentement'],['QRT','Cesser la transmission'],['QRV','Je suis prêt'],['QRX','Attendre / je rappelle'],['QRZ','Qui m\'appelle ?'],['QSB','Évanouissements (fading)'],['QSL','Accusé de réception'],['QSO','Contact radio'],['QSY','Changer de fréquence'],['QTH','Localisation']];
+const ABBR=[['CQ','Appel général'],['DE','De (ici)'],['K','À vous, répondez'],['R','Bien reçu'],['TNX','Merci'],['73','Meilleures salutations'],['88','Amour et baisers'],['GM','Bonjour (matin)'],['GA','Bon après-midi'],['GE','Bonsoir'],['GN','Bonne nuit'],['FB','Très bien'],['OM','Vieux (opérateur)'],['ES','Et'],['HW?','Comment me recevez-vous ?'],['UR','Votre / vous êtes'],['RST','Rapport lisibilité-force-tonalité'],['PSE','S\'il vous plaît'],['AGN','Encore / répétez'],['WX','Météo'],['RIG','Équipement'],['ANT','Antenne'],['CUL','À bientôt']];
+const PROSIGNS=[['<AR>','Fin de message'],['<SK>','Fin de communication'],['<BT>','Pause / séparateur'],['<KN>','À vous seulement (station nommée)'],['<AS>','Attendez'],['<SOS>','Détresse']];
+const NAMES=['JEAN','MARC','LUC','ANNA','PAUL','EMMA','JOHN','MIKE','HUGO','LEA'];
+const CITIES=['PARIS','LYON','MONTREAL','QUEBEC','TORONTO','BERLIN','LONDON','ROME','MADRID','OSAKA'];
+const TITLES={koch:'Entraînement Koch',weak:'Caractères à revoir',letters:'Lettres',digits:'Chiffres & ponctuation',words:'Mots',phrases:'Phrases'};
+
+/* ============ ICÔNES (SVG) ============ */
+const ICONS={
+  learn:'<path d="M3 5h6a3 3 0 0 1 3 3v11a2 2 0 0 0-2-2H3z"/><path d="M21 5h-6a3 3 0 0 0-3 3v11a2 2 0 0 1 2-2h7z"/>',
+  practice:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4.5" height="6.5" rx="1.5"/><rect x="16.5" y="14" width="4.5" height="6.5" rx="1.5"/>',
+  key:'<path d="M2.5 20h19"/><path d="M4.5 20v-2.5h5V20"/><path d="M7 17.5 18 13"/><path d="M18 13v-2.5"/><rect x="15" y="7.5" width="6" height="3" rx="1.5"/>',
+  tr:'<path d="M4 8h15l-3.5-3.5"/><path d="M20 16H5l3.5 3.5"/>',
+  set:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+  play:'<path d="M8 5.8v12.4a.8.8 0 0 0 1.2.7l10-6.2a.8.8 0 0 0 0-1.4l-10-6.2A.8.8 0 0 0 8 5.8z" fill="currentColor" stroke="none"/>',
+  stop:'<rect x="6.5" y="6.5" width="11" height="11" rx="1.5" fill="currentColor" stroke="none"/>',
+  close:'<path d="M6 6l12 12M18 6 6 18"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  chev:'<path d="m9 6 6 6-6 6"/>',
+  copy:'<rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/>',
+  erase:'<path d="M9 5h11v14H9l-6-7z"/><path d="m12.5 9.5 5 5M17.5 9.5l-5 5"/>',
+  shuffle:'<path d="M3 7h3.5c4.5 0 6.5 10 11 10H21"/><path d="M3 17h3.5c1.8 0 3-1.5 4.2-3.5M13.3 10.5C14.5 8.5 15.7 7 17.5 7H21"/><path d="m18.5 4.5 2.5 2.5-2.5 2.5M18.5 14.5l2.5 2.5-2.5 2.5"/>',
+  replay:'<path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4.5v4h4"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.7"/>'
+};
+const ic=(n,c='i')=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
+const LOGO='<svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="5" cy="6" r="4"/><rect x="11" y="2" width="15" height="8" rx="4"/></svg>';
+const glyph=(code,c='')=>`<span class="mg ${c}">${[...code].map(e=>`<i class="${e==='.'?'d':'h'}"></i>`).join('')}</span>`;
+
+/* ============ UTILS ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const disp=c=>c.replace(/[<>]/g,'');
+const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+let cfg=Object.assign({wpm:18,eff:12,tone:620,vol:.7,audio:true,vib:true,flash:false,torch:false,keyer:'straight',swap:false,hint:true},store.get('cfg',{}));
+const PROG0=()=>({lv:2,xp:0,streak:0,last:'',sess:0,chars:{},days:{},best:{}});
+let prog=Object.assign(PROG0(),store.get('prog',{}));
+const saveCfg=()=>store.set('cfg',cfg), saveProg=()=>store.set('prog',prog);
+
+/* ============ PROGRESSION : points, niveaux, série, stats par caractère ============ */
+const dayKey=(off=0)=>{const d=new Date();d.setDate(d.getDate()-off);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const RANKS=['Débutant','Écouteur','Novice','Opérateur','Opérateur confirmé','Graphiste','Graphiste confirmé','Expert CW','Maître CW'];
+function levelOf(xp){let l=1,acc=0,need=200;while(xp>=acc+need){acc+=need;l++;need=200+100*(l-1)}return{l,cur:xp-acc,need,rank:RANKS[Math.min(RANKS.length-1,Math.floor((l-1)/2))]}}
+const streakNow=()=>prog.last===dayKey()||prog.last===dayKey(1)?prog.streak:0;
+function addXP(n){if(n<=0)return 0;const before=levelOf(prog.xp).l,t=dayKey();
+  if(prog.last!==t){prog.streak=prog.last===dayKey(1)?prog.streak+1:1;prog.last=t}
+  prog.xp+=n;prog.days[t]=(prog.days[t]||0)+n;
+  const ks=Object.keys(prog.days).sort();while(ks.length>30)delete prog.days[ks.shift()];
+  saveProg();return levelOf(prog.xp).l>before?levelOf(prog.xp).l:0}
+function recChar(c,good){if(c===' '||!M[c])return;const r=prog.chars[c]||(prog.chars[c]=[0,0]);r[1]++;if(good)r[0]++;
+  if(r[1]>=40){r[0]/=2;r[1]/=2}} /* garde surtout les résultats récents */
+const charAcc=c=>{const r=prog.chars[c];return r&&r[1]>=1?r[0]/r[1]:null};
+const weakChars=()=>Object.keys(prog.chars).filter(c=>prog.chars[c][1]>=4&&charAcc(c)<.85).sort((a,b)=>charAcc(a)-charAcc(b));
+/* tirage pondéré : les caractères mal reconnus reviennent plus souvent */
+const pickW=set=>{const w=set.map(c=>{const a=charAcc(c);return a==null?1.5:1+3*(1-a)});let r=Math.random()*w.reduce((x,y)=>x+y,0);for(let i=0;i<set.length;i++){r-=w[i];if(r<=0)return set[i]}return set[set.length-1]};
+
+/* ============ SORTIES : audio / vibration / flash / lampe ============ */
+const Cap=window.Capacitor, native=!!(Cap&&Cap.isNativePlatform&&Cap.isNativePlatform());
+let Haptics=null,Torch=null,AppP=null,Vibe=null;
+if(native){if(Cap.getPlatform&&Cap.getPlatform()==='android')try{Vibe=Cap.registerPlugin('MorseVibe')}catch{} try{Haptics=Cap.registerPlugin('Haptics')}catch{} try{Torch=Cap.registerPlugin('Torch')}catch{} try{AppP=Cap.registerPlugin('App')}catch{}}
+let ctx=null;
+function ac(){if(!ctx){const C=window.AudioContext||window.webkitAudioContext;ctx=new C()}if(ctx.state==='suspended')ctx.resume();return ctx}
+/* Vibration : plugin natif MorseVibe (amplitude max, usage alarme) → Haptics → navigator.vibrate */
+let vibeOk=true;
+function vib(ms){ if(!cfg.vib)return;
+  if(ms===0){ if(Vibe&&vibeOk)Vibe.cancel().catch(()=>{}); try{navigator.vibrate&&navigator.vibrate(0)}catch{} return }
+  const d=Math.max(1,Math.round(ms));
+  if(Vibe&&vibeOk){Vibe.vibrate({duration:d}).catch(()=>{vibeOk=false;vibFallback(d)});return}
+  vibFallback(d) }
+function vibFallback(d){
+  if(Haptics&&Haptics.vibrate){Haptics.vibrate({duration:d}).catch(()=>{});return}
+  try{navigator.vibrate&&navigator.vibrate(d)}catch{} }
+function flash(on){ if(cfg.flash)$('#flash').style.opacity=on?1:0; }
+function lamp(on){ document.querySelectorAll('.lamp').forEach(l=>l.classList.toggle('on',on)); }
+let torchOn=false;
+function torch(on){ if(!cfg.torch||!Torch||torchOn===on)return; torchOn=on; (on?Torch.enable():Torch.disable()).catch(()=>{}); }
+function allOff(){ $('#flash').style.opacity=0; lamp(false); if(torchOn&&Torch){torchOn=false;Torch.disable().catch(()=>{})} try{navigator.vibrate&&navigator.vibrate(0)}catch{} }
+
+/* ============ MOTEUR DE LECTURE ============ */
+const unit=()=>1.2/cfg.wpm;
+function gaps(){const u=unit();if(cfg.eff>=cfg.wpm)return{l:3*u,w:7*u};const c=cfg.wpm,s=cfg.eff;const ta=(60*c-37.2*s)/(s*c);return{l:3*ta/19,w:7*ta/19}}
+const tokenize=w=>w.match(/<[A-Z]+>|[\s\S]/g)||[];
+function build(text){const u=unit(),g=gaps(),ev=[];const words=String(text).trim().toUpperCase().split(/\s+/).filter(Boolean);
+  words.forEach((w,wi)=>{const chars=tokenize(w).filter(c=>M[c]);
+    chars.forEach((ch,ci)=>{const code=M[ch];
+      [...code].forEach((e,ei)=>{ev.push({on:1,d:(e==='.'?1:3)*u,ch:ei===0?ch:null});if(ei<code.length-1)ev.push({on:0,d:u})});
+      if(ci<chars.length-1)ev.push({on:0,d:g.l})});
+    if(wi<words.length-1)ev.push({on:0,d:g.w})});
+  return ev}
+let timers=[],oscs=[],playing=false;
+const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
+function stop(){timers.forEach(clearTimeout);timers=[];oscs.forEach(o=>{try{o.stop()}catch{}});oscs=[];playing=false;allOff()}
+function play(text,o={}){stop();const ev=build(text);if(!ev.length){o.onEnd&&o.onEnd();return}
+  const c=cfg.audio?ac():null,base=90;let t=0;playing=true;
+  ev.forEach(e=>{
+    if(e.on){
+      if(c){const osc=c.createOscillator(),g=c.createGain(),st=c.currentTime+base/1000+t;
+        osc.type='sine';osc.frequency.value=cfg.tone;g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(cfg.vol,st+.005);
+        g.gain.setValueAtTime(cfg.vol,st+Math.max(.006,e.d-.005));g.gain.linearRampToValueAtTime(0,st+e.d);
+        osc.connect(g).connect(c.destination);osc.start(st);osc.stop(st+e.d+.02);oscs.push(osc)}
+      const ms=e.d*1000,at=base+t*1000;
+      later(()=>{flash(1);torch(true);vib(ms);lamp(true)},at);
+      later(()=>{flash(0);torch(false);lamp(false)},at+ms);
+      if(e.ch&&o.onChar)later(()=>o.onChar(e.ch),at);
+    }
+    t+=e.d});
+  later(()=>{playing=false;o.onEnd&&o.onEnd()},base+t*1000+40)}
+
+/* ---- clé en direct (manipulateur) ---- */
+let kosc=null,kgain=null,kvib=null;
+function keyOn(){ if(cfg.audio){const c=ac();kosc=c.createOscillator();kgain=c.createGain();kosc.frequency.value=cfg.tone;
+    kgain.gain.setValueAtTime(0,c.currentTime);kgain.gain.linearRampToValueAtTime(cfg.vol,c.currentTime+.004);kosc.connect(kgain).connect(c.destination);kosc.start()}
+  flash(1);torch(true);lamp(true);
+  /* avec MorseVibe : une longue vibration annulée au relâchement ; sinon impulsions courtes répétées */
+  if(cfg.vib){clearInterval(kvib);if(Vibe&&vibeOk)vib(5000);else{vib(70);kvib=setInterval(()=>vib(70),50)}} }
+function keyOff(){ if(kosc){const c=ctx;try{kgain.gain.cancelScheduledValues(c.currentTime);kgain.gain.setValueAtTime(kgain.gain.value,c.currentTime);kgain.gain.linearRampToValueAtTime(0,c.currentTime+.005);kosc.stop(c.currentTime+.012)}catch{}kosc=null}
+  clearInterval(kvib);kvib=null;flash(0);torch(false);lamp(false);vib(0) }
+
+/* ---- décodeur ---- */
+const dec={el:'',out:'',t1:null,t2:null,cb:null};
+function decPush(sym){const u=unit()*1000;dec.el+=sym;clearTimeout(dec.t1);clearTimeout(dec.t2);
+  dec.t1=setTimeout(()=>{dec.out+=REV[dec.el]||'?';dec.el='';dec.cb&&dec.cb()},u*2.6);
+  dec.t2=setTimeout(()=>{if(dec.out&&!dec.out.endsWith(' ')){dec.out+=' ';dec.cb&&dec.cb()}},u*6.5);
+  dec.cb&&dec.cb()}
+function decReset(){clearTimeout(dec.t1);clearTimeout(dec.t2);dec.el='';dec.out=''}
+
+/* ============ ÉTAT & NAVIGATION ============ */
+const S={tab:'learn',sess:null,quiz:null,target:'',fb:'',fbc:'',tr:{text:'CQ CQ DE F4XYZ K',m2:''}};
+const TABS=[['learn','Apprendre'],['practice','Pratique'],['key','Manip'],['tr','Traduire'],['set','Réglages']];
+const header=()=>`<header class="hd"><div class="brand">${LOGO}<span>MorseLab</span></div>
+  <button class="wpm" data-a="tab" data-k="set"><b>${cfg.wpm}</b> WPM${cfg.eff<cfg.wpm?` · ${cfg.eff} eff.`:''}</button></header>`;
+function render(){
+  const full=!S.sess&&!S.quiz;
+  $('#nav').innerHTML=`<div class="in">${TABS.map(([k,l])=>`<button data-a="tab" data-k="${k}" class="${S.tab===k&&full?'on':''}">${ic(k)}${l}</button>`).join('')}</div>`;
+  const v=S.sess?vSess:S.quiz?vQuiz:{learn:vLearn,practice:vPractice,key:vKey,tr:vTr,set:vSet}[S.tab];
+  $('#main').innerHTML=(full?header():'')+v();
+  if(full){ if(S.tab==='key')bindKeyer(); if(S.tab==='tr')bindTr(); }
+}
+const segBar=(n,f,nw=-1)=>`<div class="seg">${Array.from({length:n},(_,i)=>`<i class="${i===nw?'n':i<f?'f':''}"></i>`).join('')}</div>`;
+const li=(a,k,tag,t,d)=>`<button class="li" data-a="${a}" data-k="${k}"><span class="tag">${tag}</span><span class="t"><b>${t}</b><span>${d}</span></span>${ic('chev')}</button>`;
+
+/* ---- Progression ---- */
+const gain=(pts,lvup)=>pts==null?'':`<div class="gain">+${pts} pts</div>${lvup?`<div class="unlock">Niveau ${lvup} atteint · ${levelOf(prog.xp).rank}</div>`:''}`;
+function progCard(){const L=levelOf(prog.xp),st=streakNow();let ok=0,tot=0;
+  for(const c in prog.chars){ok+=prog.chars[c][0];tot+=prog.chars[c][1]}
+  const days=Array.from({length:7},(_,i)=>{const o=6-i,d=new Date();d.setDate(d.getDate()-o);return{v:prog.days[dayKey(o)]||0,l:'DLMMJVS'[d.getDay()],t:o===0}});
+  const mx=Math.max(100,...days.map(d=>d.v));
+  return `<div class="card">
+    <div class="row" style="align-items:flex-end"><div><span class="kick">Niveau ${L.l}</span><div class="rank">${L.rank}</div></div><div class="xp">${prog.xp}<small> pts</small></div></div>
+    <div class="bar"><i style="width:${L.cur/L.need*100}%"></i></div>
+    <div class="note" style="margin:0">${L.need-L.cur} pts avant le niveau ${L.l+1}</div>
+    <div class="stats"><div><b>${st}</b><span>${st>1?'jours':'jour'} de série</span></div><div><b>${prog.sess}</b><span>sessions</span></div><div><b>${tot?Math.round(ok/tot*100)+'<small>%</small>':'—'}</b><span>précision</span></div></div>
+    <div class="week">${days.map(d=>`<div class="${d.t?'t':''}" title="${d.v} pts"><span class="b"><i style="height:${d.v?Math.max(8,d.v/mx*100):0}%"></i></span><span class="l">${d.l}</span></div>`).join('')}</div>
+  </div>`}
+function weakCard(){const wk=weakChars().slice(0,8);if(!wk.length)return '';
+  return `<h2>À revoir</h2><div class="card">
+    <div class="chips" style="margin-top:0">${wk.map(c=>`<button class="chip" data-a="hear" data-t="${esc(c)}">${esc(c)}<span class="pc">${Math.round(charAcc(c)*100)} %</span></button>`).join('')}</div>
+    <button class="btn sec" data-a="sess" data-k="weak">${ic('play')}Entraîner ces caractères</button>
+    <p class="note">Les caractères sous 85 % de réussite. Ils reviennent aussi plus souvent dans l'entraînement Koch.</p></div>`}
+
+/* ---- Apprendre ---- */
+function vLearn(){const lv=prog.lv,n=KOCH.length;
+  const steps=[['sess','koch','Caractères','Méthode Koch, ci-dessus',lv>=n],['sess','words','Mots','Vocabulaire radio courant'],['sess','phrases','Phrases','Phrases complètes'],
+    ['quiz','q','Codes opérationnels','Q-codes, abréviations, prosignes'],['quiz','qso','QSO réels','Un contact complet à décoder'],['tab','key','Manipulateur','Émettre à la clé ou aux palettes']];
+  return `<h1>Apprendre</h1>
+  ${progCard()}
+  <h2>Caractères</h2>
+  <div class="card">
+    <div class="row"><span class="kick">Méthode Koch</span><span class="kick">${Math.round(lv/n*100)} %</span></div>
+    <div class="koch-n" style="margin-top:10px">${lv}<small>/ ${n} caractères</small></div>
+    ${segBar(n,lv,lv-1)}
+    <div class="chips">${[...KOCH].map((c,i)=>i<lv
+      ?`<button class="chip ${i===lv-1?'new':''}" data-a="hear" data-t="${esc(c)}">${esc(c)}${glyph(M[c])}</button>`
+      :`<button class="chip lock" data-a="hear" data-t="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+    <button class="btn" data-a="sess" data-k="koch">${ic('play')}S'entraîner</button>
+    <p class="note">Écoutez, tapez ce que vous entendez. ${lv<n?`Une session à 90 % ou plus débloque le caractère suivant (<b class="mono" style="color:var(--tx)">${esc(KOCH[lv])}</b>).`:'Tous les caractères sont débloqués.'} Touchez un caractère pour l'entendre.</p>
+    ${lv<n?`<button class="ghost" data-a="unlockall" style="margin-top:2px">${ic('unlock')}Tout débloquer</button>`:''}
+  </div>
+  ${weakCard()}
+  <h2>Parcours</h2>
+  <div class="card" style="padding:4px 16px"><ol class="steps">${steps.map(([a,k,t,d,done])=>`<li class="${done?'done':''}"><button class="li" data-a="${a}" data-k="${k}"><span class="t"><b>${t}</b><span>${d}</span></span>${ic('chev')}</button></li>`).join('')}</ol></div>
+  <h2>Référence</h2>
+  <div class="card"><details><summary>Table complète des caractères${ic('chev')}</summary>
+    <div class="tbl">${Object.keys(M).filter(k=>k.length===1).map(k=>`<button data-a="hear" data-t="${esc(k)}"><span>${esc(k)}</span>${glyph(M[k])}</button>`).join('')}</div>
+    <h2 style="margin-top:20px">Prosignes</h2>
+    <div class="tbl">${PROSIGNS.map(([k])=>`<button data-a="hear" data-t="${esc(k)}"><span>${disp(k)}</span>${glyph(M[k])}</button>`).join('')}</div>
+  </details></div>`}
+
+/* ---- Pratique ---- */
+function vPractice(){
+  return `<h1>Pratique</h1>
+  <h2>Réception</h2><div class="card flush">
+    ${li('sess','letters','A–Z','Lettres','Groupes de 4 lettres aléatoires')}
+    ${li('sess','digits','0–9','Chiffres & ponctuation','Groupes de 4 signes')}
+    ${li('sess','words','MOT','Mots','Vocabulaire radio courant')}
+    ${li('sess','phrases','TXT','Phrases','Phrases complètes')}</div>
+  <h2>Codes opérationnels</h2><div class="card flush">
+    ${li('quiz','q','QTH','Q-codes','QRA, QTH, QSY…')}
+    ${li('quiz','ab','73','Abréviations','CQ, TNX, 73, FB…')}
+    ${li('quiz','pro','SK','Prosignes','AR, SK, BT, KN…')}</div>
+  <h2>Échanges réels</h2><div class="card flush">
+    ${li('quiz','qso','QSO','CW QSO','Écoutez un contact complet et répondez aux questions')}</div>
+  <h2>Émission</h2><div class="card flush">
+    ${li('tab','key','KEY','Manipulateur','Clé droite, mono-levier ou iambique')}</div>`}
+
+/* ---- Sessions de réception ---- */
+function gen(kind){
+  if(kind==='koch'){const set=[...KOCH].slice(0,prog.lv),nw=set[set.length-1];
+    return Array.from({length:10},()=>{let g='';for(let i=0;i<4;i++)g+=pickW(set);if(Math.random()<.6&&!g.includes(nw)){const p=rnd(4);g=g.slice(0,p)+nw+g.slice(p+1)}return g})}
+  if(kind==='weak'){let set=weakChars().slice(0,8);if(set.length<2)set=[...new Set([...set,...KOCH.slice(0,Math.max(2,prog.lv))])].slice(0,4);
+    return Array.from({length:10},()=>Array.from({length:4},()=>pickW(set)).join(''))}
+  if(kind==='letters')return Array.from({length:10},()=>Array.from({length:4},()=>pick([...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'])).join(''));
+  if(kind==='digits')return Array.from({length:10},()=>Array.from({length:4},()=>pick([...'0123456789.,?/=+-'])).join(''));
+  if(kind==='words')return shuffle(WORDS).slice(0,10);
+  return shuffle(PHRASES).slice(0,8)}
+function startSess(kind){stop();S.sess={kind,items:gen(kind),i:0,ok:0,tot:0,res:null,done:false,unlocked:false,log:[]};render();focusAns();autoplay()}
+function autoplay(){const s=S.sess;if(s&&!s.done&&!s.res)setTimeout(()=>{if(S.sess===s&&!s.res)play(s.items[s.i])},300)}
+const focusAns=()=>{const a=$('#ans');a&&a.focus()};
+const topBar=(title,i,n)=>`<div class="top"><button class="iconb" data-a="quit" aria-label="Quitter">${ic('close')}</button><span class="kick">${title}</span><span class="cnt">${i}/${n}</span></div>${segBar(n,i-1)}`;
+function vSess(){const s=S.sess;
+  if(s.done){const acc=Math.round(s.ok/s.tot*100);
+    return `<div class="top"><button class="iconb" data-a="quit" aria-label="Quitter">${ic('close')}</button><span class="kick">${TITLES[s.kind]}</span><span class="cnt"></span></div>
+    <div class="card center" style="padding-top:22px"><span class="kick">Précision</span>
+    <div class="score ${acc>=90?'ok':''}">${acc}<small> %</small></div><p class="muted" style="margin:0">${s.ok} / ${s.tot} caractères corrects</p>
+    ${gain(s.pts,s.lvup)}
+    ${s.unlocked?`<div class="unlock">Nouveau caractère <b>${esc(KOCH[prog.lv-1])}</b>${glyph(M[KOCH[prog.lv-1]])}</div>`:''}
+    ${s.kind==='koch'&&!s.unlocked&&prog.lv<KOCH.length?`<p class="note">Atteignez 90 % pour débloquer <b class="mono" style="color:var(--tx)">${esc(KOCH[prog.lv])}</b>.</p>`:''}
+    <div class="log">${s.log.map(r=>`<div>${r.good?`<span class="ok">${ic('check')}</span>`:`<span class="bad">${ic('close')}</span>`}<span class="e">${esc(r.exp)}</span><span class="y">${r.good?'':esc(r.typed)||'—'}</span></div>`).join('')}</div>
+    <div class="btns"><button class="btn sec" data-a="quit">Terminer</button><button class="btn" data-a="sess" data-k="${s.kind}">${ic('replay')}Recommencer</button></div></div>`}
+  const it=s.items[s.i];
+  let body;
+  if(s.res){const r=s.res;body=`<div class="target">${[...r.exp].map((c,i)=>`<span class="${r.typed[i]===c?'ok':'bad'}">${c===' '?'&nbsp;':esc(c)}</span>`).join('')}</div>
+    <p class="muted center" style="margin:0">Vous avez tapé <span class="mono" style="color:var(--tx);letter-spacing:.1em">${esc(r.typed)||'—'}</span></p>
+    <button class="btn" data-a="next">${s.i+1>=s.items.length?'Voir le résultat':'Suivant'}${ic('arrow')}</button>`}
+  else body=`${cfg.hint?`<div class="slots">${[...it].map(c=>`<i class="${c===' '?'sp':''}"></i>`).join('')}</div>`:''}
+    <input type="text" id="ans" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="Tapez ce que vous entendez">
+    <button class="btn" data-a="submit">Valider</button>`;
+  return `${topBar(TITLES[s.kind],s.i+1,s.items.length)}
+  <div class="card stage"><button class="listen" data-a="replay"><span class="ring"><span class="lamp"></span>${ic(s.res?'replay':'play')}</span><span class="l">${s.res?'Réécouter':'Écouter'}</span></button>${body}</div>`}
+function submitAns(){const s=S.sess,el=$('#ans');if(!s||s.res||!el)return;stop();
+  const typed=el.value.toUpperCase().replace(/\s+/g,' ').trim(),exp=s.items[s.i];let m=0;[...exp].forEach((c,i)=>{if(typed[i]===c)m++});
+  [...exp].forEach((c,i)=>recChar(c,typed[i]===c));
+  s.ok+=m;s.tot+=exp.length;s.res={typed,exp};s.log.push({exp,typed,good:typed===exp});render()}
+function nextItem(){const s=S.sess;if(!s||!s.res)return;stop();s.res=null;s.i++;
+  if(s.i>=s.items.length){s.done=true;const acc=s.ok/s.tot;
+    if(s.kind==='koch'&&acc>=.9&&prog.lv<KOCH.length){prog.lv++;s.unlocked=true}
+    prog.sess++;prog.best[s.kind]=Math.max(prog.best[s.kind]||0,Math.round(acc*100));
+    s.pts=s.ok*10+(acc>=.9?50:0)+(s.unlocked?100:0);s.lvup=addXP(s.pts);saveProg();render()}
+  else{render();autoplay();focusAns()}}
+
+/* ---- Quiz (Q-codes, abréviations, prosignes, QSO) ---- */
+const randCall=()=>pick(['F','W','K','DL','G','VE','ON','EA','I'])+rnd(10)+Array.from({length:2+rnd(2)},()=>pick([...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'])).join('');
+function opts(correct,pool){const o=new Set([correct]);const p=shuffle(pool);for(const x of p){if(o.size>=4)break;o.add(x)}return shuffle([...o])}
+function makeQuiz(kind){
+  if(kind==='qso'){const A=randCall(),B=randCall(),name=pick(NAMES),qth=pick(CITIES),rst=pick(['599','579','559','449','339']);
+    const text=`CQ CQ DE ${A} ${A} K ${A} DE ${B} ${B} GM UR RST ${rst} ${rst} NAME ${name} ${name} QTH ${qth} ${qth} HW? <KN>`;
+    const calls=()=>Array.from({length:6},randCall);
+    return{title:'CW QSO',audio:text,qs:[
+      {q:'Quel indicatif lance l\'appel général (CQ) ?',o:opts(A,calls()),a:A},
+      {q:'Quel indicatif répond à l\'appel ?',o:opts(B,calls()),a:B},
+      {q:'Quel rapport RST est donné ?',o:opts(rst,['599','579','559','449','339','589']),a:rst},
+      {q:'Quel est le prénom de l\'opérateur qui répond ?',o:opts(name,NAMES),a:name},
+      {q:'Quel est son QTH (localisation) ?',o:opts(qth,CITIES),a:qth}]}}
+  const pool=kind==='q'?QCODES:kind==='ab'?ABBR:PROSIGNS,title=kind==='q'?'Q-codes':kind==='ab'?'Abréviations':'Prosignes';
+  const qs=shuffle(pool).slice(0,Math.min(10,pool.length)).map(([c,m])=>{
+    if(Math.random()<.65)return{q:`Que signifie « ${disp(c)} » ?`,play:c,o:opts(m,pool.map(x=>x[1])),a:m};
+    return{q:`Quel code signifie « ${m} » ?`,o:opts(disp(c),pool.map(x=>disp(x[0]))),a:disp(c),playAns:c}});
+  return{title,qs}}
+function startQuiz(kind){stop();const q=makeQuiz(kind);Object.assign(q,{kind,i:0,ok:0,picked:null,done:false});S.quiz=q;render();
+  setTimeout(()=>{if(S.quiz===q)play(q.audio||(q.qs[0].play||''))},300)}
+function vQuiz(){const z=S.quiz;
+  if(z.done)return `<div class="top"><button class="iconb" data-a="quit" aria-label="Quitter">${ic('close')}</button><span class="kick">${z.title}</span><span class="cnt"></span></div>
+    <div class="card center" style="padding-top:22px"><span class="kick">Score</span><div class="score ${z.ok===z.qs.length?'ok':''}">${z.ok}<small> / ${z.qs.length}</small></div>
+    ${gain(z.pts,z.lvup)}
+    ${z.audio?`<div class="transcript">${esc(z.audio)}</div>`:''}
+    <div class="btns"><button class="btn sec" data-a="quit">Terminer</button><button class="btn" data-a="quiz" data-k="${z.kind}">${ic('replay')}Recommencer</button></div></div>`;
+  const q=z.qs[z.i],P=z.picked!=null;
+  const listen=z.audio?'Écouter le QSO':q.play?'Réécouter':'';
+  return `${topBar(z.title,z.i+1,z.qs.length)}
+  <div class="card">${listen?`<div class="center" style="padding:10px 0 4px"><button class="listen" data-a="qplay"><span class="ring"><span class="lamp"></span>${ic('play')}</span><span class="l">${listen}</span></button></div>`:''}
+  <p class="q">${esc(q.q)}</p>
+  ${q.o.map((o,i)=>{const st=P?(o===q.a?'ok':i===z.picked?'bad':'dim'):'';
+    return `<button class="opt ${st}" data-a="pick" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span class="v">${esc(o)}</span>${st==='ok'?ic('check'):st==='bad'?ic('close'):''}</button>`}).join('')}
+  ${P?`<button class="btn" data-a="qnext">${z.i+1>=z.qs.length?'Voir le résultat':'Suivant'}${ic('arrow')}</button>`:''}</div>`}
+function pickOpt(i){const z=S.quiz,q=z.qs[z.i];if(z.picked!=null)return;z.picked=i;if(q.o[i]===q.a)z.ok++;
+  render();if(q.playAns)play(q.playAns)}
+function qNext(){const z=S.quiz;if(z.picked==null)return;stop();z.picked=null;z.i++;
+  if(z.i>=z.qs.length){z.done=true;prog.sess++;z.pts=z.ok*20+(z.ok===z.qs.length?50:0);z.lvup=addXP(z.pts);saveProg()}render();
+  if(!z.done&&!z.audio&&z.qs[z.i].play)setTimeout(()=>play(z.qs[z.i].play),250)}
+
+/* ---- Manipulateur ---- */
+const KMODES=[['straight','Clé droite'],['single','Mono-levier'],['iambic','Iambique']];
+function vKey(){
+  const dL=cfg.swap?'-':'.',dR=cfg.swap?'.':'-',nm=e=>e==='.'?'DIT':'DAH';
+  const pads=cfg.keyer==='straight'
+    ?`<div class="pads"><button class="pad sk" id="sk"><span class="lamp"></span>${ic('key')}<b>APPUYER</b><small>Maintenez · barre espace au clavier</small></button></div>`
+    :`<div class="pads"><button class="pad" id="pl"><span class="lamp"></span>${glyph(dL)}<b>${nm(dL)}</b><small>touche ${dL==='.'?'Z':'X'}</small></button><button class="pad" id="pr"><span class="lamp"></span>${glyph(dR)}<b>${nm(dR)}</b><small>touche ${dR==='.'?'Z':'X'}</small></button></div>`;
+  return `<h1>Manipulateur</h1>
+  <div class="seglist">${KMODES.map(([k,l])=>`<button class="${cfg.keyer===k?'on':''}" data-a="kmode" data-k="${k}">${l}</button>`).join('')}</div>
+  <div class="card" style="margin-top:12px">
+    <div class="row"><span class="kick">${S.target?'Cible':'Mode libre'}</span><span style="display:flex;gap:6px"><button class="ghost" data-a="newtarget">${ic('shuffle')}Cible</button><button class="ghost" data-a="kclear" aria-label="Effacer">${ic('erase')}</button></span></div>
+    ${S.target?`<div class="target" id="ktarget" style="margin:14px 0 12px"></div>`:''}
+    <div class="lcd" id="kout" style="margin-top:12px"></div>
+    <div class="fb" id="kfb"></div>
+  </div>
+  ${pads}`}
+function updK(){const o=$('#kout');if(!o)return;
+  o.innerHTML=`${esc(dec.out)}${dec.el?`<span class="pend">${glyph(dec.el)}</span>`:''}${!dec.out&&!dec.el?'<span style="color:var(--mu2);font:15px var(--sans);letter-spacing:0">Le texte décodé apparaît ici</span>':''}`;
+  const f=$('#kfb');if(f){f.textContent=S.fb;f.className='fb '+(S.fbc||'')}
+  const t=$('#ktarget');
+  if(t&&S.target){t.innerHTML=[...S.target].map((c,i)=>`<span class="${i<dec.out.length?(dec.out[i]===c?'ok':'bad'):''}" style="${i>=dec.out.length?'color:var(--mu)':''}">${esc(c)}</span>`).join('');
+    if(dec.out.trimEnd().length>=S.target.length&&!dec.el){const good=dec.out.trim()===S.target;
+      if(good&&!S.tAward){S.tAward=true;const p=S.target.length*10;addXP(p);S.fb=`Parfait · +${p} pts — touchez Cible pour continuer`}
+      else if(!good)S.fb='Réessayez — touchez Effacer';
+      S.fbc=good?'ok':'bad';if(f){f.textContent=S.fb;f.className='fb '+S.fbc}}}}
+let KB={};const pad={dit:false,dah:false,ditL:false,dahL:false,run:false,lastP:'dit'};
+function bindKeyer(){dec.cb=updK;updK();
+  const hold=(el,on,off)=>{if(!el)return;el.addEventListener('pointerdown',e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId)}catch{}el.classList.add('down');on()});
+    ['pointerup','pointercancel'].forEach(t=>el.addEventListener(t,()=>{el.classList.remove('down');off()}));
+    el.addEventListener('contextmenu',e=>e.preventDefault())};
+  let t0=null;
+  const sd=()=>{if(t0!=null)return;t0=performance.now();keyOn()};
+  const su=()=>{if(t0==null)return;const d=performance.now()-t0;t0=null;keyOff();const u=unit()*1000,r=d/u,sym=r<2?'.':'-',ideal=sym==='.'?1:3,err=Math.abs(r-ideal)/ideal;
+    S.fb=`${Math.round(d)} ms · ${sym==='.'?'dit':'dah'} ${r.toFixed(1)}× (idéal ${ideal}×) · ${err<.3?'bon':r<ideal?'trop court':'trop long'}`;S.fbc=err<.3?'ok':'';decPush(sym)};
+  hold($('#sk'),sd,su);
+  const dP=cfg.swap?'dah':'dit',aP=cfg.swap?'dit':'dah';
+  hold($('#pl'),()=>pDown(dP),()=>pUp(dP));hold($('#pr'),()=>pDown(aP),()=>pUp(aP));
+  KB={sd,su,pDown,pUp}}
+function pDown(w){pad[w]=true;pad[w+'L']=true;pad.lastP=w;padLoop()}
+function pUp(w){pad[w]=false}
+async function padLoop(){if(pad.run)return;pad.run=true;const iam=()=>cfg.keyer==='iambic';let last=null;
+  const has=()=>pad.dit||pad.dah||pad.ditL||pad.dahL;
+  const send=async el=>{const u=unit()*1000;keyOn();await sleep((el==='.'?1:3)*u);keyOff();decPush(el);await sleep(u)};
+  while(has()){const d=pad.dit||pad.ditL,h=pad.dah||pad.dahL;let el;
+    if(d&&h)el=iam()?(last==='.'?'-':'.'):(pad.lastP==='dit'?'.':'-');else el=d?'.':'-';
+    const sq=d&&h;if(el==='.')pad.ditL=false;else pad.dahL=false;last=el;await send(el);
+    if(iam()&&sq&&!(pad.dit||pad.dah||pad.ditL||pad.dahL)){const o=last==='.'?'-':'.';last=o;await send(o)}}
+  pad.run=false}
+document.addEventListener('keydown',e=>{if(S.tab!=='key'||S.sess||S.quiz||e.repeat||!KB.sd)return;
+  if(e.code==='Space'&&cfg.keyer==='straight'){e.preventDefault();KB.sd()}
+  else if(cfg.keyer!=='straight'&&(e.key==='z'||e.key==='Z'))KB.pDown('dit');else if(cfg.keyer!=='straight'&&(e.key==='x'||e.key==='X'))KB.pDown('dah')});
+document.addEventListener('keyup',e=>{if(S.tab!=='key'||S.sess||S.quiz||!KB.su)return;
+  if(e.code==='Space'&&cfg.keyer==='straight')KB.su();else if(e.key==='z'||e.key==='Z')KB.pUp('dit');else if(e.key==='x'||e.key==='X')KB.pUp('dah')});
+
+/* ---- Traducteur ---- */
+const toMorse=t=>String(t).toUpperCase().trim().split(/\s+/).filter(Boolean).map(w=>tokenize(w).filter(c=>M[c]).map(c=>M[c]).join(' ')).filter(Boolean).join(' / ');
+const fromMorse=m=>String(m).replace(/[_−–—]/g,'-').replace(/[·•]/g,'.').trim().split(/\s*\/\s*|\s{3,}/).map(w=>w.trim().split(/\s+/).map(c=>REV[c]?disp(REV[c]):(c?'?':'')).join('')).join(' ');
+function vTr(){return `<h1>Traducteur</h1>
+  <div class="card"><div class="lbl"><b>Texte → Morse</b><span class="kick">${cfg.wpm} WPM</span></div>
+  <textarea id="trt" placeholder="Tapez du texte…">${esc(S.tr.text)}</textarea>
+  <div class="out" id="trm"></div>
+  <div class="btns"><button class="btn" data-a="trplay">${ic('play')}Jouer</button><button class="btn sec" data-a="trstop">${ic('stop')}Stop</button><button class="btn sec" data-a="trcopy" id="cpy">${ic('copy')}Copier</button></div></div>
+  <div class="card"><div class="lbl"><b>Morse → Texte</b></div>
+  <textarea id="trm2" class="mono" placeholder=".... . .-.. .-.. --- / .-- --- .-. .-.. -.."></textarea>
+  <div class="out" id="trd" style="letter-spacing:.1em"></div>
+  <p class="note">Séparez les lettres par un espace et les mots par « / ».</p></div>`}
+function bindTr(){const a=$('#trt'),b=$('#trm2');
+  const u1=()=>{S.tr.text=a.value;$('#trm').textContent=toMorse(a.value)||'—'};
+  const u2=()=>{S.tr.m2=b.value;$('#trd').textContent=fromMorse(b.value)||'—'};
+  a.addEventListener('input',u1);b.addEventListener('input',u2);b.value=S.tr.m2;u1();u2()}
+
+/* ---- Réglages ---- */
+const fmt=(k,v)=>k==='wpm'||k==='eff'?`${v} WPM`:k==='tone'?`${v} Hz`:k==='vol'?`${Math.round(v*100)} %`:v;
+const pct=(v,mn,mx)=>`${(v-mn)/(mx-mn)*100}%`;
+function vSet(){
+  const sl=(k,l,mn,mx,st)=>`<div class="set col"><div class="row"><span>${l}</span><span class="v" id="lab-${k}">${fmt(k,cfg[k])}</span></div><input type="range" data-cfg="${k}" min="${mn}" max="${mx}" step="${st}" value="${cfg[k]}" style="--p:${pct(cfg[k],mn,mx)}"></div>`;
+  const tg=(k,l,n='')=>`<label class="set"><span>${l}${n?`<span class="note" style="display:block;margin:2px 0 0">${n}</span>`:''}</span><input type="checkbox" class="sw" data-cfg="${k}" ${cfg[k]?'checked':''}></label>`;
+  return `<h1>Réglages</h1>
+  <h2>Vitesse</h2><div class="card">${sl('wpm','Vitesse des caractères',5,40,1)}${sl('eff','Vitesse effective (Farnsworth)',5,40,1)}</div>
+  <h2>Sorties</h2><div class="card">${tg('audio','Son')}${sl('tone','Tonalité',400,900,10)}${sl('vol','Volume',0,1,.05)}${tg('vib','Vibration')}${tg('flash','Flash d\'écran')}${tg('torch','Lampe torche',native?'':'Disponible uniquement dans l\'app Android')}
+  <button class="btn sec" data-a="test">${ic('play')}Tester · CQ</button></div>
+  <h2>Manipulateur</h2><div class="card"><div class="set"><span>Mode</span><select data-cfg="keyer">${KMODES.map(([k,l])=>`<option value="${k}" ${cfg.keyer===k?'selected':''}>${l}</option>`).join('')}</select></div>${tg('swap','Inverser les palettes')}</div>
+  <h2>Entraînement</h2><div class="card">
+  <div class="set col"><div class="row"><span>Caractères débloqués</span><span class="v" id="lab-plv">${prog.lv} / ${KOCH.length}</span></div><input type="range" data-prog="lv" min="2" max="${KOCH.length}" step="1" value="${prog.lv}" style="--p:${pct(prog.lv,2,KOCH.length)}"><span class="note" id="plv-chars" style="margin:0">${esc(KOCH.slice(0,prog.lv))}</span></div>
+  ${tg('hint','Indice','Affiche le nombre de caractères à trouver')}
+  <button class="btn sec" data-a="reset">Réinitialiser la progression</button></div>
+  <div class="foot">${LOGO}<span>Aucun compte, aucune donnée envoyée</span></div>`}
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.prog==='lv'){prog.lv=+t.value;saveProg();
+    t.style.setProperty('--p',pct(+t.value,+t.min,+t.max));const l=$('#lab-plv');if(l)l.textContent=`${prog.lv} / ${KOCH.length}`;const c=$('#plv-chars');if(c)c.textContent=KOCH.slice(0,prog.lv);return}});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.cfg;if(!k)return;
+  const t=e.target;cfg[k]=t.type==='checkbox'?t.checked:t.type==='range'?+t.value:t.value;
+  if(k==='wpm'&&cfg.eff>cfg.wpm)cfg.eff=cfg.wpm;if(k==='eff'&&cfg.eff>cfg.wpm)cfg.wpm=cfg.eff;
+  if(k==='torch'&&cfg.torch&&Torch){Torch.isAvailable&&Torch.isAvailable().catch(()=>{})}
+  if(t.type==='range')t.style.setProperty('--p',pct(+t.value,+t.min,+t.max));
+  saveCfg();const l=$('#lab-'+k);if(l)l.textContent=fmt(k,cfg[k])});
+document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.cfg;if(k==='wpm'||k==='eff'||k==='keyer')render()});
+
+/* ============ ACTIONS ============ */
+const A={
+  tab:d=>{stop();S.sess=null;S.quiz=null;S.tab=d.k;render();window.scrollTo(0,0)},
+  hear:d=>play(d.t),
+  sess:d=>startSess(d.k),
+  quiz:d=>startQuiz(d.k),
+  quit:()=>{stop();S.sess=null;S.quiz=null;render()},
+  replay:()=>{const s=S.sess;if(s)play(s.items[s.i])},
+  submit:submitAns,next:nextItem,
+  qplay:()=>{const z=S.quiz;play(z.audio||z.qs[z.i].play||'')},
+  pick:d=>pickOpt(+d.i),qnext:qNext,
+  kmode:d=>{cfg.keyer=d.k;saveCfg();render()},
+  newtarget:()=>{S.target=pick(WORDS);S.tAward=false;decReset();S.fb='';S.fbc='';render()},
+  kclear:()=>{decReset();S.fb='';S.fbc='';render()},
+  unlockall:()=>{if(!confirm(`Débloquer les ${KOCH.length} caractères ? Vous pourrez revenir en arrière dans Réglages.`))return;prog.lv=KOCH.length;saveProg();render()},
+  trplay:()=>play(S.tr.text),trstop:stop,
+  trcopy:()=>{const b=$('#cpy');const done=()=>{if(b){b.innerHTML=`${ic('check')}Copié`;setTimeout(()=>{if(b.isConnected)b.innerHTML=`${ic('copy')}Copier`},1400)}};
+    try{navigator.clipboard.writeText(toMorse(S.tr.text)).then(done,()=>{})}catch{}},
+  test:()=>play('CQ'),
+  reset:()=>{if(!confirm('Tout réinitialiser : caractères, points, niveau, série et statistiques ?'))return;prog=PROG0();saveProg();render()}
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;try{ac()}catch{}A[el.dataset.a]&&A[el.dataset.a](el.dataset)});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(S.sess&&!S.sess.done){e.preventDefault();S.sess.res?nextItem():submitAns()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();keyOff()}});
+
+/* Bouton retour Android : quitte l'exercice, puis revient à Apprendre, puis ferme l'app */
+if(AppP&&AppP.addListener){try{Promise.resolve(AppP.addListener('backButton',()=>{
+  if(S.sess||S.quiz)A.quit();else if(S.tab!=='learn')A.tab({k:'learn'});else AppP.exitApp&&AppP.exitApp();
+})).catch(()=>{})}catch{}}
+render();
+</script>
+</body>
+</html>
