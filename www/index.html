@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0E0D0B">
+<meta name="description" content="Apprendre le code Morse : méthode Koch, réception, Q-codes, manipulateur.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MorseLab">
 <title>MorseLab</title>
 <style>
 :root{
@@ -292,6 +300,7 @@ const weakChars=()=>Object.keys(prog.chars).filter(c=>prog.chars[c][1]>=4&&charA
 const pickW=set=>{const w=set.map(c=>{const a=charAcc(c);return a==null?1.5:1+3*(1-a)});let r=Math.random()*w.reduce((x,y)=>x+y,0);for(let i=0;i<set.length;i++){r-=w[i];if(r<=0)return set[i]}return set[set.length-1]};
 
 /* ============ SORTIES : audio / vibration / flash / lampe ============ */
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const Cap=window.Capacitor, native=!!(Cap&&Cap.isNativePlatform&&Cap.isNativePlatform());
 let Haptics=null,Torch=null,AppP=null,Vibe=null;
 if(native){if(Cap.getPlatform&&Cap.getPlatform()==='android')try{Vibe=Cap.registerPlugin('MorseVibe')}catch{} try{Haptics=Cap.registerPlugin('Haptics')}catch{} try{Torch=Cap.registerPlugin('Torch')}catch{} try{AppP=Cap.registerPlugin('App')}catch{}}
@@ -604,7 +613,7 @@ function vSet(){
   const tg=(k,l,n='')=>`<label class="set"><span>${l}${n?`<span class="note" style="display:block;margin:2px 0 0">${n}</span>`:''}</span><input type="checkbox" class="sw" data-cfg="${k}" ${cfg[k]?'checked':''}></label>`;
   return `<h1>Réglages</h1>
   <h2>Vitesse</h2><div class="card">${sl('wpm','Vitesse des caractères',5,40,1)}${sl('eff','Vitesse effective (Farnsworth)',5,40,1)}</div>
-  <h2>Sorties</h2><div class="card">${tg('audio','Son')}${sl('tone','Tonalité',400,900,10)}${sl('vol','Volume',0,1,.05)}${tg('vib','Vibration')}${tg('flash','Flash d\'écran')}${tg('torch','Lampe torche',native?'':'Disponible uniquement dans l\'app Android')}
+  <h2>Sorties</h2><div class="card">${tg('audio','Son',isIOS&&!native?'Coupé si l\'iPhone est en mode silencieux':'')}${sl('tone','Tonalité',400,900,10)}${sl('vol','Volume',0,1,.05)}${tg('vib','Vibration',!native&&!navigator.vibrate?'Non disponible dans ce navigateur':'')}${tg('flash','Flash d\'écran')}${tg('torch','Lampe torche',native?'':'Disponible uniquement dans l\'app')}
   <button class="btn sec" data-a="test">${ic('play')}Tester · CQ</button></div>
   <h2>Manipulateur</h2><div class="card"><div class="set"><span>Mode</span><select data-cfg="keyer">${KMODES.map(([k,l])=>`<option value="${k}" ${cfg.keyer===k?'selected':''}>${l}</option>`).join('')}</select></div>${tg('swap','Inverser les palettes')}</div>
   <h2>Entraînement</h2><div class="card">
@@ -651,6 +660,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();key
 if(AppP&&AppP.addListener){try{Promise.resolve(AppP.addListener('backButton',()=>{
   if(S.sess||S.quiz)A.quit();else if(S.tab!=='learn')A.tab({k:'learn'});else AppP.exitApp&&AppP.exitApp();
 })).catch(()=>{})}catch{}}
+/* Version web : service worker (hors ligne + installation sur l'écran d'accueil) */
+if(!native&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 render();
 </script>
 </body>
