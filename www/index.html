@@ -312,6 +312,127 @@ main.les{padding-bottom:200px}
 .fintiles span{display:block;font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
 .fintiles b{display:block;font:700 24px var(--mono);margin-top:6px}
 
+/* ---- Bip : animations supplémentaires ---- */
+.masc .fl-l{transform-origin:34px 90px;animation:wave 6s ease-in-out infinite}
+.masc .fl-r{transform-origin:86px 90px;animation:wave2 6s ease-in-out 3s infinite}
+@keyframes wave{0%,78%,100%{transform:rotate(0)}83%{transform:rotate(-28deg)}88%{transform:rotate(4deg)}93%{transform:rotate(-22deg)}}
+@keyframes wave2{0%,78%,100%{transform:rotate(0)}83%{transform:rotate(28deg)}88%{transform:rotate(-4deg)}93%{transform:rotate(22deg)}}
+.masc .pu{animation:look 8s ease-in-out infinite}
+@keyframes look{0%,28%,100%{transform:translate(0,0)}33%,48%{transform:translate(-2.6px,.4px)}54%,70%{transform:translate(2.6px,-.8px)}}
+.masc .nt{opacity:0;transform-box:fill-box;animation:note 3.6s ease-out infinite}
+.masc .nt2{animation-delay:1.2s}.masc .nt3{animation-delay:2.4s}
+@keyframes note{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(10px,-38px) scale(1)}}
+.masc .cf{animation:conf 1.4s ease-in-out infinite alternate}
+@keyframes conf{to{transform:translateY(-4px)}}
+.masc.walk .bd{animation:waddle .42s ease-in-out infinite}
+@keyframes waddle{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-4px)}}
+.masc.spin .bd{animation:hop .7s cubic-bezier(.3,1.5,.5,1)}
+@keyframes hop{30%{transform:translateY(-18px) rotate(-8deg)}60%{transform:translateY(-6px) rotate(6deg)}}
+@media (prefers-reduced-motion:reduce){.masc *{animation:none!important}}
+
+/* ---- accueil ---- */
+.hero{display:flex;align-items:flex-end;gap:8px;margin:8px 0 14px}
+.hero-bip{flex:none;background:none;border:0;padding:0;cursor:pointer}
+.hero .masc{--ms:124px}
+.hero .bubble{margin-bottom:40px}
+.cta{padding:17px;font-size:17px;border-radius:14px;box-shadow:0 5px 0 #9C6416;margin:0 0 18px}
+.cta:active{transform:translateY(3px);box-shadow:0 2px 0 #9C6416}
+.feat{display:flex;align-items:center;gap:14px;padding:14px 16px}
+.feat .fi{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:var(--ac-dim);color:var(--ac)}
+.feat .fi svg.i{width:24px;height:24px}
+.feat .t{flex:1;min-width:0}
+.feat .t b{display:block;font-weight:650}
+.feat .t span{display:block;font-size:14px;color:var(--mu);margin-top:1px}
+.feat .btn{width:auto;margin:0;padding:10px 16px;border-radius:10px;box-shadow:0 3px 0 #9C6416}
+.feat.new{border-color:var(--ac);background:linear-gradient(90deg,var(--ac-dim),var(--s1) 70%)}
+.feat.new .fi{animation:nudge 1.6s ease-in-out infinite}
+@keyframes nudge{0%,70%,100%{transform:rotate(0)}78%{transform:rotate(-12deg)}86%{transform:rotate(10deg)}}
+
+/* ---- amis ---- */
+.av{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;font:700 18px var(--sans);color:#1A1206}
+.av.lg{width:58px;height:58px;font-size:24px}
+.me{display:flex;align-items:center;gap:14px}
+.me b{font-size:19px;font-weight:680;letter-spacing:-.01em}
+.code{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--s2);border:1px dashed var(--line2)}
+.code b{font:700 24px var(--mono);letter-spacing:.22em;color:var(--ac)}
+.addf{display:flex;gap:8px}
+.addf input{flex:1;font:700 18px var(--mono)!important;letter-spacing:.2em;text-transform:uppercase}
+.addf .btn{width:auto;margin:0;padding:0 18px}
+.fr{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.fr:first-child{border-top:0}
+.fr .t{flex:1;min-width:0}
+.fr .t b{display:block;font-weight:600}
+.fr .t span{display:block;font-size:13px;color:var(--mu);margin-top:1px}
+.fr .rk{font:700 15px var(--mono);color:var(--mu);width:22px;text-align:center}
+.fr .sc{font:700 16px var(--mono)}
+.fr .fi{flex:none;display:grid;place-items:center;width:42px}
+.fr.mine{background:var(--ac-dim)}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font:600 11px var(--mono);letter-spacing:.04em;background:var(--s3);color:var(--mu)}
+.pill.ac{background:var(--ac-dim);color:var(--ac)}.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.empty{text-align:center;padding:18px 10px 8px}
+.empty .masc{--ms:96px;margin:0 auto 6px}
+.fsel{display:flex;flex-wrap:wrap;gap:8px}
+.fsel button{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:999px;border:2px solid var(--line2);background:var(--s1);font-weight:600}
+.fsel button .av{width:30px;height:30px;font-size:14px}
+.fsel button.on{border-color:var(--ac);background:var(--ac-dim)}
+.cmp{font:700 22px var(--mono);letter-spacing:.12em;word-break:break-word;margin:8px 0}
+
+/* ---- scène : bouteille à la mer ---- */
+#ov{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,7,6,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#ov.on{display:flex}
+.ov-in{position:relative;width:100%;max-width:460px}
+.skipb{position:absolute;top:10px;right:10px;z-index:5;background:rgba(0,0,0,.4);border:0;color:#F2E4C4;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px}
+.scene{position:relative;aspect-ratio:3/2;border-radius:20px;overflow:hidden;background:linear-gradient(#10151F,#1E2A3B 58%);border:1px solid var(--line2)}
+.scene .bg{position:absolute;inset:0;width:100%;height:100%}
+.scene .tw{animation:tw 2.4s ease-in-out infinite}.scene .t2{animation-delay:.8s}.scene .t3{animation-delay:1.6s}
+@keyframes tw{50%{opacity:.25}}
+.waves{position:absolute;left:0;top:56%;width:60%;height:9%;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,#000 70%,transparent);mask-image:linear-gradient(90deg,#000 70%,transparent)}
+.waves svg{position:absolute;left:0;top:0;width:200%;height:100%;animation:sea 5s linear infinite}
+.waves .w2{top:30%;animation-duration:3.6s;animation-direction:reverse}
+@keyframes sea{to{transform:translateX(-50%)}}
+.a-bottle{position:absolute;left:-16%;bottom:12%;width:9%;z-index:3}
+.a-bob{transform:rotate(72deg);animation:bobw 1.8s ease-in-out infinite}
+.a-bob .btl{display:block;width:100%;height:auto}
+@keyframes bobw{0%,100%{transform:translateY(0) rotate(68deg)}50%{transform:translateY(-12%) rotate(78deg)}}
+.a-bip{position:absolute;left:64%;bottom:14%;width:27%;z-index:2}
+.a-bip .masc{--ms:100%}
+.a-cork{position:absolute;width:3.2%;aspect-ratio:1/1.1;border-radius:3px;background:#A8794F;opacity:0;z-index:4}
+.a-splash{position:absolute;width:24%;aspect-ratio:3/1;border:3px solid #CFE3EA;border-radius:50%;opacity:0;z-index:2}
+.held .a-bob{animation:none;transform:rotate(-14deg)}
+.uncorked .ck{display:none}
+/* arrivée */
+.arrive .a-bottle{animation:drift 2.6s ease-out .2s both,beach .6s ease-in-out 2.8s forwards,lift .45s ease-out 3.75s forwards}
+@keyframes drift{from{left:-16%}to{left:38%}}
+@keyframes beach{to{left:49%;bottom:17%}}
+@keyframes lift{to{left:60%;bottom:30%}}
+.arrive .a-bip{animation:walkin 1.3s ease-out 2.2s both}
+@keyframes walkin{from{left:108%}to{left:64%}}
+.arrive .a-cork{left:63.5%;bottom:58%;animation:pop .8s ease-out 4.25s forwards}
+@keyframes pop{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(-120%,-260%) rotate(-280deg)}}
+/* lancer */
+.throw .a-bottle{left:60%;bottom:30%;animation:tossx 1.05s linear 1.05s forwards,away 2.4s ease-in 2.3s forwards}
+.throw .a-bob{animation:tossy 1.05s ease-in-out 1.05s forwards}
+@keyframes tossx{to{left:20%;bottom:12%}}
+@keyframes tossy{0%{transform:translateY(0) rotate(-14deg)}45%{transform:translateY(-190%) rotate(260deg)}100%{transform:translateY(0) rotate(430deg)}}
+@keyframes away{to{left:-22%;bottom:16%;transform:scale(.55)}}
+.throw.float .a-bob{animation:bobw 1.8s ease-in-out infinite}
+.throw .a-bip .masc{transform-origin:50% 95%;animation:windup .7s ease-in-out .45s both}
+@keyframes windup{55%{transform:rotate(12deg) translateX(5%)}100%{transform:rotate(-7deg) translateX(-4%)}}
+.throw .a-splash{left:15%;bottom:9%;animation:splash .9s ease-out 2.05s both}
+@keyframes splash{0%{opacity:.9;transform:scale(.2)}100%{opacity:0;transform:scale(1.7)}}
+/* la lettre (carte) */
+.letter{position:relative;margin:-26px 12px 0;z-index:6;background:#EFE0C0;color:#2A1C15;border-radius:6px 6px 16px 16px;padding:22px 18px 16px;box-shadow:0 14px 34px rgba(0,0,0,.55);transform-origin:top center;animation:unroll .55s cubic-bezier(.3,1.3,.5,1) var(--d,4.7s) both}
+.letter::before{content:"";position:absolute;left:-6px;right:-6px;top:-8px;height:16px;border-radius:8px;background:#E2CFA6;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)}
+@keyframes unroll{from{transform:scaleY(.04);opacity:0}}
+.letter h3{margin:0 0 6px;font-size:21px;letter-spacing:-.01em}
+.letter p{margin:0 0 14px;color:#5B4636;font-size:15px}
+.letter .btn{box-shadow:0 4px 0 #9C6416}
+.letter .btn.sec{background:transparent;border:2px solid #CDB688;color:#5B4636;box-shadow:none}
+.skip .a-bottle,.skip .a-bip,.skip .a-cork,.skip .a-splash,.skip .a-bip .masc,.skip~.letter,.skip .a-bob{animation-duration:.01s!important;animation-delay:0s!important;animation-iteration-count:1!important}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);z-index:70;transform:translate(-50%,-160%);max-width:min(92vw,440px);padding:11px 16px;border-radius:12px;background:var(--tx);color:var(--bg);font-weight:600;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:transform .3s cubic-bezier(.3,1.3,.5,1)}
+#toast.on{transform:translate(-50%,0)}
+nav .dot{position:absolute;top:7px;left:calc(50% + 6px);width:9px;height:9px;border-radius:50%;background:var(--bad);border:2px solid var(--bg)}
+
 /* ---- navigation ---- */
 nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;background:rgba(14,13,11,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 nav .in{display:flex;width:100%;max-width:560px}
@@ -325,6 +446,10 @@ nav button.on svg.i{color:var(--ac)}
 <div id="flash"></div>
 <main id="main"></main>
 <nav id="nav"></nav>
+<div id="ov"></div>
+<div id="toast"></div>
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
 <script>
 "use strict";
 /* ============ DONNÉES ============ */
@@ -364,7 +489,13 @@ const ICONS={
   flame:'<path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.3 2.3-5.4 3.8-7.6.4 1.9 1.4 3 2.4 3.4.2-2.9 1.3-5.3 3.6-7.6.3 3 1.6 4.6 2.7 6.2 1 1.5 1.5 2.9 1.5 4.7C19.5 18.3 16 21 12 21z" fill="currentColor" stroke="none"/>',
   bolt:'<path d="M13.5 2.5 5 13.5h6l-1 8 8.5-11h-6z" fill="currentColor" stroke="none"/>',
   speaker:'<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" fill="currentColor"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/>',
-  star:'<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="currentColor" stroke="none"/>'
+  star:'<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="currentColor" stroke="none"/>',
+  friends:'<circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 13.8c2.8.1 4.5 2.1 4.5 4.9"/>',
+  bottle:'<path d="M10 3h4M10.5 3v3.6c0 1-3 2.4-3 5.1V19a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-7.3c0-2.7-3-4.1-3-5.1V3"/><path d="M7.5 13.5h9"/>',
+  share:'<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><circle cx="12" cy="15" r="1.5" fill="currentColor"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7"/>'
 };
 const ic=(n,c='i')=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
 const LOGO='<svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="5" cy="6" r="4"/><rect x="11" y="2" width="15" height="8" rx="4"/></svg>';
@@ -378,13 +509,15 @@ function mascot(mood='idle',cls=''){
     ?`<path d="M37 52q7-8 14 0M69 52q7-8 14 0" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>`
     :mood==='sad'
     ?`<circle cx="44" cy="53" r="5.5" fill="${ink}"/><circle cx="76" cy="53" r="5.5" fill="${ink}"/><circle cx="46" cy="51" r="1.8" fill="#fff"/><circle cx="78" cy="51" r="1.8" fill="#fff"/><path d="M35 43l12 5M85 43l-12 5" stroke="#6B4C3D" stroke-width="3.5" stroke-linecap="round"/>`
-    :`<g class="ey"><circle cx="44" cy="51" r="6.5" fill="${ink}"/><circle cx="76" cy="51" r="6.5" fill="${ink}"/><circle cx="46.5" cy="48.5" r="2.3" fill="#fff"/><circle cx="78.5" cy="48.5" r="2.3" fill="#fff"/></g>`;
-  const party=mood==='party'?`<g fill="#F0A43A"><circle cx="10" cy="22" r="4"/><rect x="96" y="14" width="16" height="7" rx="3.5" transform="rotate(25 104 17)"/><circle cx="112" cy="44" r="3"/><rect x="2" y="44" width="12" height="6" rx="3" transform="rotate(-30 8 47)"/><circle cx="60" cy="4" r="3.5"/></g>`:'';
-  return `<svg class="masc ${mood==='sad'?'sad':''} ${cls}" viewBox="0 0 120 112" aria-hidden="true">${party}
-  <ellipse cx="60" cy="106" rx="34" ry="5" fill="#000" opacity=".28"/>
+    :`<g class="ey"><g class="pu"><circle cx="44" cy="51" r="6.5" fill="${ink}"/><circle cx="76" cy="51" r="6.5" fill="${ink}"/><circle cx="46.5" cy="48.5" r="2.3" fill="#fff"/><circle cx="78.5" cy="48.5" r="2.3" fill="#fff"/></g></g>`;
+  const party=mood==='party'?`<g fill="#F0A43A" class="cf"><circle cx="10" cy="22" r="4"/><rect x="96" y="14" width="16" height="7" rx="3.5" transform="rotate(25 104 17)"/><circle cx="112" cy="44" r="3"/><rect x="2" y="44" width="12" height="6" rx="3" transform="rotate(-30 8 47)"/><circle cx="60" cy="4" r="3.5"/></g>`:'';
+  /* petits signes Morse qui s'échappent du casque (mode « live ») */
+  const notes=cls.includes('live')?`<g fill="#F0A43A"><circle class="nt" cx="110" cy="44" r="2.6"/><rect class="nt nt2" x="106" y="42" width="10" height="4.4" rx="2.2"/><circle class="nt nt3" cx="110" cy="44" r="2.6"/></g>`:'';
+  return `<svg class="masc ${mood==='sad'?'sad':''} ${cls}" viewBox="0 0 120 112" aria-hidden="true">${party}${notes}
+  <ellipse class="sh" cx="60" cy="106" rx="34" ry="5" fill="#000" opacity=".28"/>
   <g class="bd">
-    <ellipse cx="25" cy="95" rx="11" ry="6" fill="#7E5F4E" transform="rotate(-22 25 95)"/>
-    <ellipse cx="95" cy="95" rx="11" ry="6" fill="#7E5F4E" transform="rotate(22 95 95)"/>
+    <g class="fl-l"><ellipse cx="25" cy="95" rx="11" ry="6" fill="#7E5F4E" transform="rotate(-22 25 95)"/></g>
+    <g class="fl-r"><ellipse cx="95" cy="95" rx="11" ry="6" fill="#7E5F4E" transform="rotate(22 95 95)"/></g>
     <path d="M17 72c0-28 19-48 43-48s43 20 43 48c0 19-15 31-43 31S17 91 17 72z" fill="#A27F69"/>
     <ellipse cx="60" cy="92" rx="27" ry="10" fill="#B8957D"/>
     <path d="M50 74v19a3.5 3.5 0 0 0 7 0V74zM63 74v19a3.5 3.5 0 0 0 7 0V74z" fill="#FFF6E8"/>
@@ -399,6 +532,25 @@ function mascot(mood='idle',cls=''){
   </g></svg>`}
 const BIP_OK=['Bien joué !','Parfait !','Excellent !','Tu as l\'oreille !','Bravo !','Impeccable !'];
 const BIP_KO=['Presque !','Pas tout à fait…','Ça viendra !','On le revoit tout à l\'heure.'];
+const BIP_TAP=['Bip bip !','HI HI : c\'est comme ça qu\'on rit en Morse !','Écoute le rythme, pas les points.','73 ! Ça veut dire « amitiés » entre radioamateurs.','Mes moustaches captent toutes les fréquences.','Une leçon par jour et tu deviens graphiste en un rien de temps.','SOS, c\'est trois points, trois traits, trois points.'];
+
+/* Bouteille (verticale, bouchon séparé pour l'animation) */
+const bottleSvg=()=>`<svg class="btl" viewBox="0 0 40 90" aria-hidden="true">
+  <rect class="ck" x="14" y="1" width="12" height="12" rx="3" fill="#A8794F"/>
+  <path d="M15 12h10v12c0 3 9 7 9 16v38a8 8 0 0 1-8 8H14a8 8 0 0 1-8-8V40c0-9 9-13 9-16z" fill="#8FC7B4" fill-opacity=".5" stroke="#D5EFE5" stroke-width="2"/>
+  <g transform="rotate(-8 20 59)"><rect x="12" y="44" width="16" height="30" rx="3" fill="#F1E2C2"/><path d="M15 52h10M15 57h7M15 62h9" stroke="#B48A55" stroke-width="2" stroke-linecap="round"/></g>
+  <path d="M10 42v30" stroke="#fff" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/></svg>`;
+/* Décor : nuit, lune, mer et plage */
+const SCENE_BG=`<svg class="bg" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g fill="#F2E4C4"><circle class="tw" cx="30" cy="24" r="1.2"/><circle class="tw t2" cx="78" cy="48" r="1"/><circle class="tw t3" cx="120" cy="18" r="1.4"/><circle class="tw" cx="176" cy="40" r="1"/><circle class="tw t2" cx="206" cy="14" r="1.2"/><circle class="tw t3" cx="58" cy="78" r=".9"/></g>
+  <circle cx="250" cy="38" r="26" fill="#F2E4C4" opacity=".08"/><circle cx="250" cy="38" r="14" fill="#F2E4C4"/><circle cx="245" cy="34" r="3" fill="#E2D0AA"/><circle cx="254" cy="42" r="2" fill="#E2D0AA"/>
+  <rect x="0" y="118" width="300" height="82" fill="#1B3346"/>
+  <path d="M0 126h300" stroke="#F2E4C4" stroke-opacity=".12" stroke-width="2" stroke-dasharray="3 9"/>
+  <path d="M150 200V146c18-14 40-22 70-24s56 0 80-4v82z" fill="#A88A5C"/>
+  <path d="M150 146c18-14 40-22 70-24s56 0 80-4" stroke="#C7A874" stroke-width="3" fill="none"/>
+  <g fill="#8C7048"><circle cx="210" cy="168" r="2"/><circle cx="262" cy="150" r="1.6"/><circle cx="236" cy="186" r="2.2"/></g></svg>
+  <div class="waves"><svg viewBox="0 0 600 40" preserveAspectRatio="none"><path d="M0 20q25-14 50 0t50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0V40H0z" fill="#24465E"/></svg>
+  <svg class="w2" viewBox="0 0 600 40" preserveAspectRatio="none"><path d="M0 24q25-12 50 0t50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0 50 0V40H0z" fill="#2C5672"/></svg></div>`;
 
 /* ============ UTILS ============ */
 const $=s=>document.querySelector(s);
@@ -423,7 +575,7 @@ function addXP(n){if(n<=0)return 0;const before=levelOf(prog.xp).l,t=dayKey();
   if(prog.last!==t){prog.streak=prog.last===dayKey(1)?prog.streak+1:1;prog.last=t}
   prog.xp+=n;prog.days[t]=(prog.days[t]||0)+n;
   const ks=Object.keys(prog.days).sort();while(ks.length>30)delete prog.days[ks.shift()];
-  saveProg();return levelOf(prog.xp).l>before?levelOf(prog.xp).l:0}
+  saveProg();pushProgress();return levelOf(prog.xp).l>before?levelOf(prog.xp).l:0}
 function recChar(c,good){if(c===' '||!M[c])return;const r=prog.chars[c]||(prog.chars[c]=[0,0]);r[1]++;if(good)r[0]++;
   if(r[1]>=40){r[0]/=2;r[1]/=2}} /* garde surtout les résultats récents */
 const charAcc=c=>{const r=prog.chars[c];return r&&r[1]>=1?r[0]/r[1]:null};
@@ -468,7 +620,9 @@ function build(text){const u=unit(),g=gaps(),ev=[];const words=String(text).trim
 let timers=[],oscs=[],playing=false;
 const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
 function stop(){timers.forEach(clearTimeout);timers=[];oscs.forEach(o=>{try{o.stop()}catch{}});oscs=[];playing=false;allOff()}
-function play(text,o={}){stop();const ev=build(text);if(!ev.length){o.onEnd&&o.onEnd();return}
+/* exécute fn avec une vitesse imposée (défi du jour, bouteilles), sans toucher aux réglages */
+function atSpeed(w,e,fn){const a=cfg.wpm,b=cfg.eff;cfg.wpm=w;cfg.eff=Math.min(e,w);try{return fn()}finally{cfg.wpm=a;cfg.eff=b}}
+function play(text,o={}){stop();const ev=o.wpm?atSpeed(o.wpm,o.eff||o.wpm,()=>build(text)):build(text);if(!ev.length){o.onEnd&&o.onEnd();return}
   const c=cfg.audio?ac():null,base=90;let t=0;playing=true;
   ev.forEach(e=>{
     if(e.on){
@@ -518,17 +672,20 @@ function decClassify(d){const h=dec.hist;h.push(d);if(h.length>12)h.shift();
 function decReset(){decHold();dec.el='';dec.out=''}
 
 /* ============ ÉTAT & NAVIGATION ============ */
-const S={tab:'learn',sess:null,quiz:null,les:null,target:'',fb:'',fbc:'',tr:{text:'CQ CQ DE F4XYZ K',m2:''}};
-const TABS=[['learn','Apprendre'],['practice','Pratique'],['key','Manip'],['tr','Traduire'],['set','Réglages']];
+const S={tab:'learn',sess:null,quiz:null,les:null,daily:null,chal:null,comp:null,target:'',fb:'',fbc:'',tr:{text:'CQ CQ DE F4XYZ K',m2:''}};
+const TABS=[['learn','Accueil'],['practice','Pratique'],['friends','Amis'],['key','Manip'],['set','Réglages']];
 const header=()=>`<header class="hd"><div class="brand">${LOGO}<span>MorseLab</span></div>
   <button class="wpm" data-a="tab" data-k="set"><b>${cfg.wpm}</b> WPM${cfg.eff<cfg.wpm?` · ${cfg.eff} eff.`:''}</button></header>`;
+function renderNav(){const full=!S.sess&&!S.quiz,cur=S.tab==='tr'?'practice':S.tab,inc=SOC.on&&SOC.uid?incoming().length:0;
+  $('#nav').innerHTML=`<div class="in">${TABS.map(([k,l])=>`<button data-a="tab" data-k="${k}" class="${cur===k&&full?'on':''}">${ic(k)}${l}${k==='friends'&&inc?'<span class="dot"></span>':''}</button>`).join('')}</div>`}
 function render(){
-  const full=!S.sess&&!S.quiz&&!S.les;
-  $('#nav').style.display=S.les?'none':'';$('#main').classList.toggle('les',!!S.les);
-  $('#nav').innerHTML=`<div class="in">${TABS.map(([k,l])=>`<button data-a="tab" data-k="${k}" class="${S.tab===k&&full?'on':''}">${ic(k)}${l}</button>`).join('')}</div>`;
-  const v=S.les?vLesson:S.sess?vSess:S.quiz?vQuiz:{learn:vLearn,practice:vPractice,key:vKey,tr:vTr,set:vSet}[S.tab];
+  const imm=!!(S.les||S.daily||S.chal||S.comp),full=!imm&&!S.sess&&!S.quiz;
+  $('#nav').style.display=imm?'none':'';$('#main').classList.toggle('les',imm);
+  renderNav();
+  const v=S.les?vLesson:S.daily?vDaily:S.chal?vChal:S.comp?vComp:S.sess?vSess:S.quiz?vQuiz:{learn:vLearn,practice:vPractice,friends:vFriends,key:vKey,tr:vTr,set:vSet}[S.tab];
   $('#main').innerHTML=(full?header():'')+v();
   if(full){ if(S.tab==='key')bindKeyer(); if(S.tab==='tr')bindTr(); }
+  if(S.comp)bindComp();
 }
 const segBar=(n,f,nw=-1)=>`<div class="seg">${Array.from({length:n},(_,i)=>`<i class="${i===nw?'n':i<f?'f':''}"></i>`).join('')}</div>`;
 const li=(a,k,tag,t,d)=>`<button class="li" data-a="${a}" data-k="${k}"><span class="tag">${tag}</span><span class="t"><b>${t}</b><span>${d}</span></span>${ic('chev')}</button>`;
@@ -637,35 +794,215 @@ function vLesson(){const z=S.les;
   <div class="lq">${q}</div>${body}${foot}`}
 function tileSt(z,it,i,isRight){if(z.st==='ask')return z.sel===i?'sel':'';if(isRight)return 'ok';return z.sel===i?'bad':''}
 
-/* ---- Apprendre ---- */
+/* ============ EN LIGNE : Supabase (profil, amis, défi du jour, bouteilles) ============ */
+const SBC=window.MORSELAB_SUPABASE||{};
+const SOC={on:!!(SBC.url&&SBC.anonKey&&window.supabase),sb:null,uid:null,me:null,friends:[],ch:[],daily:[],loading:false,err:'',shown:new Set(),last:0,busy:false};
+function sbc(){if(!SOC.sb)SOC.sb=window.supabase.createClient(SBC.url,SBC.anonKey,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'morselab-auth',detectSessionInUrl:false}});return SOC.sb}
+async function rpc(fn,args){const{data,error}=await sbc().rpc(fn,args||{});if(error)throw new Error(error.message);return data}
+const busyView=()=>!!(S.les||S.sess||S.quiz||S.daily||S.chal||S.comp);
+async function socInit(){if(!SOC.on)return;
+  try{const{data}=await sbc().auth.getSession();SOC.uid=data.session?data.session.user.id:null;if(SOC.uid)await socRefresh(true)}
+  catch(e){SOC.err='Hors ligne'}}
+async function socRefresh(auto){if(!SOC.on||!SOC.uid)return;SOC.loading=true;
+  try{const sb=sbc();
+    const[p,c,d]=await Promise.all([sb.from('profiles').select('*'),
+      sb.from('challenges').select('*').order('created_at',{ascending:false}).limit(60),
+      sb.from('daily_results').select('*').eq('day',dayKey())]);
+    const e=p.error||c.error||d.error;if(e)throw e;
+    SOC.me=p.data.find(x=>x.id===SOC.uid)||null;
+    SOC.friends=p.data.filter(x=>x.id!==SOC.uid).sort((a,b)=>b.xp-a.xp);
+    SOC.ch=c.data||[];SOC.daily=d.data||[];SOC.err='';SOC.last=Date.now()}
+  catch(e){SOC.err='Connexion impossible pour le moment'}
+  SOC.loading=false;
+  if(!busyView()&&!$('#ov').classList.contains('on')&&(S.tab==='learn'||S.tab==='friends'))render();
+  else if(!busyView())renderNav();
+  if(SOC.me)pushProgress(true);
+  if(auto)maybeBottle()}
+async function socJoin(){const el=$('#uname'),name=el?el.value.trim():'';
+  if(name.length<2){toast('Choisis un pseudo d\'au moins 2 caractères');return}
+  if(SOC.busy)return;SOC.busy=true;render();
+  try{const sb=sbc();let{data}=await sb.auth.getSession();
+    if(!data.session){const r=await sb.auth.signInAnonymously();if(r.error)throw new Error(r.error.message.includes('nonymous')?'Les connexions anonymes sont désactivées dans Supabase':r.error.message);data=r.data}
+    SOC.uid=(data.session||data).user.id;await rpc('ensure_profile',{p_username:name});await socRefresh(false);toast('Profil créé ! Partage ton code ami.')}
+  catch(e){toast(e.message)}
+  SOC.busy=false;render()}
+let pushT=null;
+function pushProgress(now){if(!SOC.on||!SOC.me)return;clearTimeout(pushT);
+  pushT=setTimeout(()=>rpc('sync_progress',{p_xp:prog.xp,p_level:levelOf(prog.xp).l,p_streak:streakNow(),p_chars:prog.lv,p_lessons:Object.values(prog.path).reduce((a,b)=>a+b,0)}).catch(()=>{}),now?0:1500)}
+const incoming=()=>SOC.ch.filter(c=>c.to_id===SOC.uid&&!c.completed_at);
+const nameOf=id=>id===SOC.uid?'Toi':((SOC.friends.find(f=>f.id===id)||{}).username||'Un ami');
+const AVC=['#F0A43A','#8CC98A','#7DB7D8','#E8735A','#C9A0DC','#E6C86E'];
+const avatar=(p,cls='')=>{const n=(p&&p.username)||'?',h=[...n].reduce((a,c)=>a+c.charCodeAt(0),0);return `<span class="av ${cls}" style="background:${AVC[h%AVC.length]}">${esc(n[0].toUpperCase())}</span>`};
+function maybeBottle(){if(busyView()||$('#ov').classList.contains('on'))return;
+  const c=incoming().find(c=>!c.opened_at&&!SOC.shown.has(c.id));if(c)bottleArrive(c)}
+let toastT=null;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),3200)}
+
+/* ---- Scène animée : bouteille qui arrive / bouteille qu'on lance ---- */
+let ovT=[];const ovAt=(ms,fn)=>ovT.push(setTimeout(fn,ms));
+function closeOv(){ovT.forEach(clearTimeout);ovT=[];const o=$('#ov');o.className='';o.innerHTML=''}
+const sceneHTML=kind=>`<div class="scene ${kind}" id="scene">${SCENE_BG}<div class="a-splash"></div><div class="a-bip">${mascot('idle')}</div><div class="a-bottle"><div class="a-bob">${bottleSvg()}</div></div><div class="a-cork"></div></div>`;
+function setBip(mood,cls){const b=document.querySelector('#scene .a-bip');if(b)b.innerHTML=mascot(mood,cls||'')}
+function bottleArrive(c){SOC.shown.add(c.id);const from=nameOf(c.from_id),o=$('#ov');ovT.forEach(clearTimeout);ovT=[];
+  o.innerHTML=`<div class="ov-in"><button class="skipb" data-a="ovskip">Passer</button>${sceneHTML('arrive')}
+    <div class="letter"><h3>Une bouteille pour toi !</h3><p><b>${esc(from)}</b> t'a envoyé un message en Morse${c.reply_to?' en réponse à ta bouteille':''}. Décode-le pour gagner des points.</p>
+    <button class="btn" data-a="bchal" data-id="${c.id}">${ic('play')}Relever le défi</button><button class="btn sec" data-a="ovclose">Plus tard</button></div></div>`;
+  o.classList.add('on');
+  ovAt(2150,()=>setBip('idle','walk'));ovAt(3450,()=>setBip('idle'));
+  ovAt(3700,()=>{const s=$('#scene');s&&s.classList.add('held');setBip('happy','spin')});
+  ovAt(4250,()=>{const s=$('#scene');s&&s.classList.add('uncorked');sfx(true)})}
+function bottleThrow(name){const o=$('#ov');ovT.forEach(clearTimeout);ovT=[];
+  o.innerHTML=`<div class="ov-in"><button class="skipb" data-a="ovskip">Passer</button>${sceneHTML('throw held')}
+    <div class="letter" style="--d:3.3s"><h3>Bouteille à la mer !</h3><p>Bip l'a lancée vers <b>${esc(name)}</b>. Elle arrivera sur sa plage à sa prochaine ouverture de MorseLab.</p>
+    <button class="btn" data-a="ovclose">Super</button></div></div>`;
+  o.classList.add('on');
+  ovAt(1050,()=>{const s=$('#scene');s&&s.classList.remove('held')});
+  ovAt(2100,()=>{const s=$('#scene');s&&s.classList.add('float')});
+  ovAt(2400,()=>setBip('party','spin'))}
+function ovSkip(){const s=$('#scene');if(!s)return;ovT.forEach(clearTimeout);ovT=[];s.classList.add('skip');
+  if(s.classList.contains('arrive')){s.classList.add('held','uncorked');setBip('happy')}else{s.classList.remove('held');s.classList.add('float');setBip('party')}
+  const b=document.querySelector('#ov .skipb');b&&b.remove()}
+
+/* ---- Bouteille reçue : décoder le message ---- */
+function openBottle(id){const c=SOC.ch.find(x=>x.id===id);closeOv();if(!c)return;stop();
+  rpc('open_challenge',{p_id:id}).catch(()=>{});c.opened_at=c.opened_at||new Date().toISOString();
+  S.chal={c,from:nameOf(c.from_id),res:null,busy:false,plays:0};render();setTimeout(()=>{if(S.chal&&S.chal.c===c)cPlay()},450)}
+function cPlay(){const z=S.chal;if(!z)return;z.plays++;play(z.c.message,{wpm:z.c.wpm})}
+async function cSubmit(){const z=S.chal,el=$('#cans');if(!z||z.res||z.busy||!el)return;
+  if(!el.value.trim()){toast('Écris ce que tu as entendu');return}
+  z.busy=true;stop();render();
+  try{const r=await rpc('complete_challenge',{p_id:z.c.id,p_answer:el.value});z.res=r;Object.assign(z.c,r);
+    z.pts=Math.round(r.score/2)+20;z.lvup=addXP(z.pts);sfx(r.score>=80)}
+  catch(e){toast(e.message)}
+  z.busy=false;render();socRefresh(false)}
+function vChal(){const z=S.chal,c=z.c;
+  if(z.res){const r=z.res,ans=r.answer||'';
+    return `<div class="fin">${mascot(r.score>=90?'party':r.score>=50?'happy':'sad',r.score>=90?'jump':'')}
+      <h1>${r.score>=90?'Message décodé !':r.score>=50?'Pas mal du tout !':'Message brouillé…'}</h1>
+      <p class="muted" style="margin:0">Bouteille de ${esc(z.from)} · ${c.wpm} WPM</p>
+      <div class="card" style="margin-top:20px;text-align:left"><span class="kick">Message</span>
+        <div class="cmp">${[...c.message].map((ch,i)=>`<span class="${ans[i]===ch?'ok':'bad'}">${ch===' '?'&nbsp;':esc(ch)}</span>`).join('')}</div>
+        <span class="kick">Ta réponse</span><div class="cmp" style="color:var(--mu);font-size:18px">${esc(ans)||'—'}</div></div>
+      <div class="fintiles" style="margin-top:12px"><div><span>Score</span><b class="${r.score>=90?'ok':''}">${r.score}%</b></div><div><span>Points</span><b class="pend">+${z.pts||0}</b></div><div><span>Écoutes</span><b>${z.plays}</b></div></div>
+      ${z.lvup?`<div class="unlock" style="margin-top:14px">Niveau ${z.lvup} atteint · ${levelOf(prog.xp).rank}</div>`:''}
+    </div><div class="lfoot"><div class="in"><button class="btn" data-a="comp" data-to="${c.from_id}" data-re="${c.id}">${ic('bottle')}Relancer ${esc(z.from)}</button>
+      <button class="btn sec" style="margin-top:10px;box-shadow:none" data-a="cclose">Plus tard</button></div></div>`}
+  return `<div class="ltop"><button class="iconb" data-a="cclose" aria-label="Fermer">${ic('close')}</button><div class="lbar"><i style="width:${z.plays?50:8}%"></i></div><span class="combo"></span></div>
+  <div class="lq">Bouteille de ${esc(z.from)}</div>
+  <div class="lhear">${mascot('idle','live')}<button class="spk" data-a="cplay" aria-label="Écouter"><span class="lamp"></span>${ic('speaker')}</button>
+    <div class="muted">${c.wpm} WPM<br>${c.message.split(' ').length} mot${c.message.includes(' ')?'s':''} · écoutes illimitées</div></div>
+  <textarea id="cans" class="mono" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Écris le message décodé" style="text-transform:uppercase;font-size:20px;letter-spacing:.12em;min-height:110px"></textarea>
+  <div class="lfoot"><div class="in"><button class="btn" data-a="csubmit" ${z.busy?'disabled':''}>${z.busy?'Envoi…':'Valider'}</button></div></div>`}
+
+/* ---- Écrire une bouteille ---- */
+const CLEAN=s=>s.toUpperCase().replace(/[^A-Z0-9 .,?/=]/g,'').replace(/\s+/g,' ').slice(0,40);
+function startComp(to,re){stop();closeOv();S.chal=null;S.comp={to:to||null,re:re||null,text:'',wpm:Math.max(8,Math.min(cfg.wpm,25)),busy:false};render()}
+function vComp(){const z=S.comp,f=SOC.friends.find(x=>x.id===z.to);
+  return `<div class="ltop"><button class="iconb" data-a="compclose" aria-label="Fermer">${ic('close')}</button><div class="lq" style="margin:0;font-size:18px">Bouteille à la mer</div></div>
+  <div class="hello" style="margin-top:14px">${mascot('happy','live')}<div class="bubble">Écris ton message, je le transforme en Morse et je le jette à la mer${f?` pour <b>${esc(f.username)}</b>`:''} !</div></div>
+  <span class="kick">Destinataire</span>
+  <div class="fsel" style="margin:10px 0 18px">${SOC.friends.map(x=>`<button class="${x.id===z.to?'on':''}" data-a="compto" data-to="${x.id}">${avatar(x)}${esc(x.username)}</button>`).join('')||'<span class="muted">Ajoute d\'abord un ami.</span>'}</div>
+  <span class="kick">Message (40 caractères max.)</span>
+  <textarea id="ctext" class="mono" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="EX : SALUT BIP" style="margin-top:10px;text-transform:uppercase;font-size:20px;letter-spacing:.12em">${esc(z.text)}</textarea>
+  <div class="out" id="cprev" style="min-height:44px"></div>
+  <div class="set col" style="border:0;padding:16px 0 4px"><div class="row"><span>Vitesse</span><span class="v" id="cwpmv">${z.wpm} WPM</span></div><input type="range" id="cwpm" min="5" max="30" step="1" value="${z.wpm}" style="--p:${pct(z.wpm,5,30)}"></div>
+  <button class="btn sec" data-a="cprevplay">${ic('speaker')}Écouter avant d'envoyer</button>
+  <div class="lfoot"><div class="in"><button class="btn" id="csend" data-a="csend" ${z.text&&z.to&&!z.busy?'':'disabled'}>${ic('bottle')}${z.busy?'Envoi…':'Jeter la bouteille à la mer'}</button></div></div>`}
+function bindComp(){const a=$('#ctext'),s=$('#cwpm');if(!a)return;
+  const upd=()=>{const z=S.comp,v=CLEAN(a.value);if(a.value!==v){const p=a.selectionStart;a.value=v;try{a.setSelectionRange(p,p)}catch{}}
+    z.text=v.trim();$('#cprev').innerHTML=z.text?z.text.split(' ').map(w=>[...w].map(ch=>glyph(M[ch])).join('<span style="display:inline-block;width:10px"></span>')).join('<span style="display:inline-block;width:22px"></span>'):'<span class="muted" style="letter-spacing:0">Aperçu Morse</span>';
+    const b=$('#csend');if(b)b.disabled=!(z.text&&z.to&&!z.busy)};
+  a.addEventListener('input',upd);s.addEventListener('input',()=>{S.comp.wpm=+s.value;$('#cwpmv').textContent=s.value+' WPM';s.style.setProperty('--p',pct(+s.value,5,30))});upd()}
+async function cSend(){const z=S.comp;if(!z||z.busy||!z.text||!z.to)return;z.busy=true;stop();
+  const b=$('#csend');if(b){b.disabled=true;b.lastChild.textContent='Envoi…'}
+  try{await rpc('send_challenge',{p_to:z.to,p_message:z.text,p_wpm:z.wpm,p_reply_to:z.re});const name=nameOf(z.to);
+    S.comp=null;addXP(10);render();bottleThrow(name);socRefresh(false)}
+  catch(e){z.busy=false;toast(e.message);render()}}
+
+/* ---- Défi du jour : 5 mots, identiques pour tout le monde, à 15 WPM ---- */
+const DAILY_WPM=15,DAILY_EFF=10;
+function seeded(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19}
+  return()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return((h^=h>>>16)>>>0)/4294967296}}
+function dailyItems(day){const r=seeded('morselab-'+day),pool=WORDS.filter(w=>w.length>=3&&w.length<=7),out=[];
+  while(out.length<5){const w=pool[Math.floor(r()*pool.length)];if(!out.includes(w))out.push(w)}return out}
+const todayDaily=()=>prog.daily&&prog.daily.day===dayKey()?prog.daily:null;
+function dailyBoard(){const rows=[];const mine=todayDaily();
+  if(mine)rows.push({name:SOC.me?SOC.me.username:'Toi',score:mine.score,ms:mine.ms,me:true,p:SOC.me||{username:'Toi'}});
+  SOC.daily.filter(r=>r.user_id!==SOC.uid).forEach(r=>{const p=SOC.friends.find(f=>f.id===r.user_id);if(p)rows.push({name:p.username,score:r.score,ms:r.time_ms,p})});
+  return rows.sort((a,b)=>b.score-a.score||a.ms-b.ms)}
+function startDaily(){stop();const day=dayKey();S.daily={day,items:dailyItems(day),i:0,ok:0,tot:0,st:'ask',typed:'',t0:Date.now(),done:false,replay:!!todayDaily()};render();dAuto()}
+function dPlay(){const z=S.daily;if(z&&!z.done)play(z.items[z.i],{wpm:DAILY_WPM,eff:DAILY_EFF})}
+function dAuto(){const z=S.daily;setTimeout(()=>{if(S.daily===z&&z.st==='ask'){dPlay();const a=$('#dans');a&&a.focus()}},400)}
+function dCheck(){const z=S.daily,el=$('#dans');if(!z||z.st!=='ask'||!el)return;if(!el.value.trim()){toast('Écris le mot entendu');return}stop();
+  const typed=el.value.toUpperCase().replace(/\s+/g,'').trim(),w=z.items[z.i];let m=0;[...w].forEach((c,i)=>{if(typed[i]===c)m++});
+  z.ok+=m;z.tot+=w.length;z.typed=typed;z.st=typed===w?'right':'wrong';sfx(z.st==='right');render()}
+function dNext(){const z=S.daily;stop();z.i++;z.st='ask';z.typed='';
+  if(z.i>=z.items.length){z.done=true;z.score=Math.round(z.ok/z.tot*100);z.ms=Date.now()-z.t0;
+    if(!z.replay){prog.daily={day:z.day,score:z.score,ms:z.ms};z.pts=50+z.score;z.lvup=addXP(z.pts);saveProg();
+      if(SOC.me)rpc('submit_daily',{p_day:z.day,p_score:z.score,p_time_ms:z.ms}).then(()=>socRefresh(false)).catch(()=>{})}
+    render();return}
+  render();dAuto()}
+const fmtMs=ms=>{const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+function vDaily(){const z=S.daily;
+  if(z.done){const board=dailyBoard();
+    return `<div class="fin">${mascot(z.score>=90?'party':z.score>=60?'happy':'sad',z.score>=90?'jump':'')}
+      <h1>Défi du jour terminé !</h1><p class="muted" style="margin:0">${z.replay?'Entraînement : seul le premier essai compte':'Reviens demain pour un nouveau défi'}</p>
+      <div class="fintiles"><div><span>Score</span><b class="${z.score>=90?'ok':''}">${z.score}%</b></div><div><span>Temps</span><b>${fmtMs(z.ms)}</b></div><div><span>Points</span><b class="pend">+${z.pts||0}</b></div></div>
+      ${z.lvup?`<div class="unlock" style="margin-top:14px">Niveau ${z.lvup} atteint · ${levelOf(prog.xp).rank}</div>`:''}
+      ${SOC.me&&board.length?`<h2 style="text-align:left">Classement entre amis</h2><div class="card flush" style="text-align:left">${boardRows(board)}</div>`:''}
+    </div><div class="lfoot"><div class="in"><button class="btn" data-a="dclose">Continuer</button></div></div>`}
+  const w=z.items[z.i];
+  const foot=z.st==='ask'
+    ?`<div class="lfoot"><div class="in"><button class="btn" data-a="dcheck">Vérifier</button></div></div>`
+    :`<div class="lfoot ${z.st}"><div class="in"><div class="verdict">${mascot(z.st==='right'?'happy':'sad',z.st==='right'?'jump':'')}<div><b>${z.st==='right'?pick(BIP_OK):pick(BIP_KO)}</b>
+      <span>${z.st==='right'?'':'Réponse : '}<b class="mono" style="color:var(--tx)">${esc(w)}</b></span></div></div><button class="btn" data-a="dnext">Continuer</button></div></div>`;
+  return `<div class="ltop"><button class="iconb" data-a="dclose" aria-label="Quitter">${ic('close')}</button><div class="lbar"><i style="width:${z.i/z.items.length*100}%"></i></div><span class="combo">${z.i+1}/${z.items.length}</span></div>
+  <div class="lq">Défi du jour · écris le mot</div>
+  <div class="lhear">${mascot('idle','live')}<button class="spk" data-a="dplay" aria-label="Écouter"><span class="lamp"></span>${ic('speaker')}</button><div class="muted">${DAILY_WPM} WPM<br>le même défi pour tous</div></div>
+  ${z.st==='ask'?`<input type="text" id="dans" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="Tape le mot entendu" style="font:700 24px var(--mono);letter-spacing:.2em;text-transform:uppercase;text-align:center">`
+    :`<div class="target">${[...w].map((c,i)=>`<span class="${z.typed[i]===c?'ok':'bad'}">${esc(c)}</span>`).join('')}</div><p class="muted center">Tu as écrit <b class="mono" style="color:var(--tx)">${esc(z.typed)}</b></p>`}
+  ${foot}`}
+const boardRows=rows=>rows.map((r,i)=>`<div class="fr ${r.me?'mine':''}"><span class="rk">${i+1}</span>${avatar(r.p)}<div class="t"><b>${esc(r.name)}</b><span>${fmtMs(r.ms)}</span></div><span class="sc ${r.score>=90?'ok':''}">${r.score}%</span></div>`).join('');
+
+/* ---- Accueil ---- */
 function vPath(){const cur=curNode();let html='',idx=0;
   for(let u=0;u<NUNITS;u++){const open=unitOpen(u),isCur=cur&&cur.u===u,nw=unitNew(u);
     html+=`<div class="unit ${isCur?'cur':open?'':'lock'}"><div><span class="kick">Unité ${u+1}</span><b>${u===0?'Premiers signes':lDone(u)>=3?'Terminée':open?'Nouveaux caractères':'Verrouillée'}</b></div>
       <div class="uc">${nw.map(c=>`<span>${esc(c)}${glyph(M[c])}</span>`).join('')}</div></div><div class="nodes">`;
     for(let l=0;l<3;l++,idx++){const done=lDone(u)>l,here=isCur&&cur.l===l,avail=open&&(done||here||lDone(u)>=l);
-      const x=Math.round(Math.sin(idx*1.05)*62);
-      const st=done?'done':here?'cur':avail?'open':'';
+      const x=Math.round(Math.sin(idx*1.05)*62),st=done?'done':here?'cur':avail?'open':'';
       html+=`<div class="nwrap ${here?'here':''}" style="transform:translateX(${x}px)">
         ${here?`<span class="go">${lDone(u)===0&&u===0?'Commencer':LESSONS[l][0]}</span>`:''}
-        <button class="node ${st}" ${avail?`data-a="lstart" data-u="${u}" data-l="${l}"`:'disabled'} aria-label="Unité ${u+1}, ${LESSONS[l][0]}">${ic(done?'check':avail?LESSONS[l][1]:'lock')}</button>
-        ${here?`<div style="position:absolute;${x>0?'right:calc(50% + 50px)':'left:calc(50% + 50px)'};top:-16px">${mascot('idle')}</div>`:''}
-      </div>`}
+        <button class="node ${st}" ${avail?`data-a="lstart" data-u="${u}" data-l="${l}"`:'disabled'} aria-label="Unité ${u+1}, ${LESSONS[l][0]}">${ic(done?'check':avail?LESSONS[l][1]:'lock')}</button></div>`}
     html+='</div>'}
   return `<div class="path">${html}</div>`}
-function bipSays(){const cur=curNode(),st=streakNow();
-  if(!cur)return 'Tu as terminé tout le parcours ! Continue avec la Pratique pour gagner en vitesse.';
+function bipSays(){const cur=curNode(),st=streakNow(),inc=incoming().length;
+  if(inc)return `Regarde, ${inc>1?inc+' bouteilles sont arrivées':'une bouteille est arrivée'} sur la plage !`;
+  if(!cur)return 'Tu as terminé tout le parcours ! Défie tes amis ou entraîne-toi dans Pratique.';
   const nw=unitNew(cur.u).map(c=>`<b>${esc(c)}</b>`).join(' et ');
   if(cur.u===0&&cur.l===0)return 'Salut, moi c\'est Bip ! On commence par deux signes : '+nw+'. Prêt ?';
   if(!st)return `Une petite leçon pour lancer ta série ? Au programme : ${nw}.`;
   return cur.l===0?`Nouveaux caractères en vue : ${nw} !`:`On continue l'unité ${cur.u+1} : ${LESSONS[cur.l][0].toLowerCase()} ${nw}.`}
-function vLearn(){const lv=prog.lv,n=KOCH.length,st=streakNow(),L=levelOf(prog.xp);
+function dailyCard(){const dd=todayDaily();let sub='5 mots à 15 WPM · le même pour tout le monde';
+  if(dd){const b=dailyBoard(),rk=b.findIndex(r=>r.me)+1;sub=`Ton score : ${dd.score} %${SOC.me&&b.length>1?` · ${rk}${rk===1?'er':'e'} sur ${b.length}`:''}`}
+  return `<div class="card feat"><span class="fi">${ic(dd?'trophy':'cal')}</span><div class="t"><b>Défi du jour</b><span>${sub}</span></div>
+    ${dd?`<button class="ghost" data-a="daily">Rejouer</button>`:`<button class="btn" data-a="daily">Jouer</button>`}</div>`}
+const bottleCards=()=>incoming().slice(0,3).map(c=>`<div class="card feat ${c.opened_at?'':'new'}"><span class="fi">${ic('bottle')}</span><div class="t"><b>Bouteille de ${esc(nameOf(c.from_id))}</b><span>${c.opened_at?'À décoder':'Nouvelle ! Elle vient d\'arriver'} · ${c.wpm} WPM</span></div><button class="btn" data-a="bcard" data-id="${c.id}">Ouvrir</button></div>`).join('');
+function vLearn(){const st=streakNow(),L=levelOf(prog.xp),cur=curNode();
   return `<div class="topstats"><span><svg class="i fl ${st?'':'off'}" viewBox="0 0 24 24">${ICONS.flame}</svg>${st}</span><span><svg class="i" viewBox="0 0 24 24" style="color:var(--ac)">${ICONS.bolt}</svg>${prog.xp}</span><span><svg class="i" viewBox="0 0 24 24" style="color:var(--ac)">${ICONS.star}</svg>Niv. ${L.l}</span></div>
-  <div class="hello" style="margin-top:18px">${mascot('happy')}<div class="bubble">${bipSays()}</div></div>
-  ${vPath()}
-  <h2>Entraînement libre</h2>
+  <div class="hero"><button class="hero-bip" data-a="bip" id="bipHero" aria-label="Bip">${mascot('idle','live')}</button><div class="bubble" id="bipBub">${bipSays()}</div></div>
+  ${cur?`<button class="btn cta" data-a="lstart" data-u="${cur.u}" data-l="${cur.l}">${ic('play')}${cur.u===0&&cur.l===0?'Commencer':`Continuer · Unité ${cur.u+1}, ${LESSONS[cur.l][0]}`}</button>`
+       :`<button class="btn cta" data-a="tab" data-k="practice">${ic('play')}S'entraîner</button>`}
+  ${bottleCards()}
+  ${dailyCard()}
+  <h2>Parcours</h2>
+  ${vPath()}`}
+
+/* ---- Pratique ---- */
+function vPractice(){const lv=prog.lv,n=KOCH.length;
+  return `<h1>Pratique</h1>
   <div class="card">
-    <div class="row"><span class="kick">Méthode Koch</span><span class="kick">${Math.round(lv/n*100)} %</span></div>
-    <div class="koch-n" style="margin-top:10px">${lv}<small>/ ${n} caractères</small></div>
+    <div class="row"><span class="kick">Entraînement libre · Koch</span><span class="kick">${lv} / ${n}</span></div>
     ${segBar(n,lv,lv-1)}
     <div class="chips">${[...KOCH].map((c,i)=>i<lv
       ?`<button class="chip ${i===lv-1?'new':''}" data-a="hear" data-t="${esc(c)}">${esc(c)}${glyph(M[c])}</button>`
@@ -674,18 +1011,6 @@ function vLearn(){const lv=prog.lv,n=KOCH.length,st=streakNow(),L=levelOf(prog.x
     <p class="note">Écoutez, tapez ce que vous entendez. ${lv<n?`Une session à 90 % ou plus débloque le caractère suivant (<b class="mono" style="color:var(--tx)">${esc(KOCH[lv])}</b>).`:'Tous les caractères sont débloqués.'} Touchez un caractère pour l'entendre.</p>
   </div>
   ${weakCard()}
-  <h2>Statistiques</h2>
-  ${progCard()}
-  <h2>Référence</h2>
-  <div class="card"><details><summary>Table complète des caractères${ic('chev')}</summary>
-    <div class="tbl">${Object.keys(M).filter(k=>k.length===1).map(k=>`<button data-a="hear" data-t="${esc(k)}"><span>${esc(k)}</span>${glyph(M[k])}</button>`).join('')}</div>
-    <h2 style="margin-top:20px">Prosignes</h2>
-    <div class="tbl">${PROSIGNS.map(([k])=>`<button data-a="hear" data-t="${esc(k)}"><span>${disp(k)}</span>${glyph(M[k])}</button>`).join('')}</div>
-  </details></div>`}
-
-/* ---- Pratique ---- */
-function vPractice(){
-  return `<h1>Pratique</h1>
   <h2>Réception</h2><div class="card flush">
     ${li('sess','letters','A–Z','Lettres','Groupes de 4 lettres aléatoires')}
     ${li('sess','digits','0–9','Chiffres & ponctuation','Groupes de 4 signes')}
@@ -694,11 +1019,58 @@ function vPractice(){
   <h2>Codes opérationnels</h2><div class="card flush">
     ${li('quiz','q','QTH','Q-codes','QRA, QTH, QSY…')}
     ${li('quiz','ab','73','Abréviations','CQ, TNX, 73, FB…')}
-    ${li('quiz','pro','SK','Prosignes','AR, SK, BT, KN…')}</div>
-  <h2>Échanges réels</h2><div class="card flush">
+    ${li('quiz','pro','SK','Prosignes','AR, SK, BT, KN…')}
     ${li('quiz','qso','QSO','CW QSO','Écoutez un contact complet et répondez aux questions')}</div>
-  <h2>Émission</h2><div class="card flush">
-    ${li('tab','key','KEY','Manipulateur','Clé droite, mono-levier ou iambique')}</div>`}
+  <h2>Outils</h2><div class="card flush">
+    ${li('tab','tr','A⇄·−','Traducteur','Texte ↔ Morse, lecture à voix haute')}
+    ${li('tab','key','KEY','Manipulateur','Clé droite, mono-levier ou iambique')}</div>
+  <h2>Référence</h2>
+  <div class="card"><details><summary>Table complète des caractères${ic('chev')}</summary>
+    <div class="tbl">${Object.keys(M).filter(k=>k.length===1).map(k=>`<button data-a="hear" data-t="${esc(k)}"><span>${esc(k)}</span>${glyph(M[k])}</button>`).join('')}</div>
+    <h2 style="margin-top:20px">Prosignes</h2>
+    <div class="tbl">${PROSIGNS.map(([k])=>`<button data-a="hear" data-t="${esc(k)}"><span>${disp(k)}</span>${glyph(M[k])}</button>`).join('')}</div>
+  </details></div>`}
+
+/* ---- Amis ---- */
+function vFriends(){
+  if(!SOC.on)return `<h1>Amis</h1>
+    <div class="card empty">${mascot('sad')}<b>Les fonctions en ligne ne sont pas activées</b><p class="note">Il manque la configuration Supabase dans <span class="mono">www/config.js</span>.</p></div>
+    <h2>Mes statistiques</h2>${progCard()}`;
+  if(!SOC.me)return `<h1>Amis</h1>
+    <div class="hello">${mascot('happy','live')}<div class="bubble">Choisis un pseudo et défie tes amis avec des <b>bouteilles à la mer</b> en Morse !</div></div>
+    <div class="card"><span class="kick">Ton pseudo</span>
+      <input type="text" id="uname" maxlength="20" autocomplete="off" placeholder="Ex : Cédric" style="margin-top:10px;font-size:18px">
+      <button class="btn" data-a="join" ${SOC.busy?'disabled':''}>${SOC.busy?'Création…':'Créer mon profil'}</button>
+      <p class="note">Ni e-mail ni mot de passe : ton profil est lié à cet appareil. Tes amis verront ton pseudo et ta progression.</p></div>
+    <h2>Mes statistiques</h2>${progCard()}`;
+  const me=SOC.me,inc=incoming(),sent=SOC.ch.filter(c=>c.from_id===SOC.uid).slice(0,6),got=SOC.ch.filter(c=>c.to_id===SOC.uid&&c.completed_at).slice(0,4),board=dailyBoard();
+  const st=c=>c.completed_at?`<span class="pill ok">décodée · ${c.score} %</span>`:c.opened_at?`<span class="pill ac">ramassée</span>`:`<span class="pill">en mer</span>`;
+  return `<h1>Amis</h1>
+  ${SOC.err?`<p class="note bad">${esc(SOC.err)}</p>`:''}
+  <div class="card"><div class="me">${avatar(me,'lg')}<div style="flex:1"><b>${esc(me.username)}</b><div class="muted">Niv. ${levelOf(prog.xp).l} · ${levelOf(prog.xp).rank}</div></div>
+    <button class="iconb" data-a="socref" aria-label="Actualiser">${ic('replay')}</button></div>
+    <div class="code"><div><span class="kick">Mon code ami</span><br><b>${esc(me.friend_code)}</b></div><button class="ghost" data-a="sharecode">${ic(navigator.share?'share':'copy')}${navigator.share?'Partager':'Copier'}</button></div></div>
+  <h2>Ajouter un ami</h2>
+  <div class="addf"><input type="text" id="fcode" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="CODE"><button class="btn" data-a="addf">${ic('plus')}Ajouter</button></div>
+  ${inc.length?`<h2>Bouteilles reçues</h2>${bottleCards()}`:''}
+  <h2>Mes amis · ${SOC.friends.length}</h2>
+  ${SOC.friends.length?`<div class="card flush">${SOC.friends.map(f=>`<div class="fr">${avatar(f)}<div class="t"><b>${esc(f.username)}</b><span>Niv. ${f.level} · série ${f.streak} · ${f.chars}/41 caractères</span></div>
+      <button class="ghost" data-a="comp" data-to="${f.id}" aria-label="Défier ${esc(f.username)}">${ic('bottle')}Défier</button></div>`).join('')}</div>
+    <button class="btn sec" data-a="comp">${ic('bottle')}Écrire une bouteille</button>`
+    :`<div class="card empty">${mascot('idle','live')}<b>Pas encore d'amis</b><p class="note">Partage ton code ami ou entre celui d'un ami ci-dessus.</p></div>`}
+  <h2>Défi du jour · classement</h2>
+  ${board.length?`<div class="card flush">${boardRows(board)}</div>`:`<div class="card feat"><span class="fi">${ic('cal')}</span><div class="t"><b>Personne n'a encore joué</b><span>Sois le premier aujourd'hui</span></div><button class="btn" data-a="daily">Jouer</button></div>`}
+  ${sent.length||got.length?`<h2>Historique des bouteilles</h2><div class="card flush">
+    ${sent.map(c=>`<div class="fr"><span class="fi" style="color:var(--mu)">${ic('bottle')}</span><div class="t"><b>Pour ${esc(nameOf(c.to_id))}</b><span class="mono">${esc(c.message)}</span></div>${st(c)}</div>`).join('')}
+    ${got.map(c=>`<div class="fr"><span class="fi" style="color:var(--ac)">${ic('bottle')}</span><div class="t"><b>De ${esc(nameOf(c.from_id))}</b><span class="mono">${esc(c.message)}</span></div><span class="pill ok">${c.score} %</span></div>`).join('')}</div>`:''}
+  <h2>Mes statistiques</h2>${progCard()}`}
+async function addFriend(){const el=$('#fcode'),code=el?el.value.trim().toUpperCase():'';if(code.length!==6){toast('Le code ami fait 6 caractères');return}
+  try{const f=await rpc('add_friend',{p_code:code});toast(`${f.username} est maintenant ton ami !`);await socRefresh(false)}catch(e){toast(e.message)}}
+function shareCode(){const c=SOC.me&&SOC.me.friend_code;if(!c)return;const txt=`Ajoute-moi sur MorseLab ! Mon code ami : ${c}`;
+  if(navigator.share)navigator.share({text:txt}).catch(()=>{});
+  else try{navigator.clipboard.writeText(c).then(()=>toast('Code copié'),()=>toast(c))}catch{toast(c)}}
+function bipTap(){const h=$('#bipHero'),b=$('#bipBub');if(!h)return;h.innerHTML=mascot('happy','live spin');if(b)b.textContent=pick(BIP_TAP);play('HI HI');
+  clearTimeout(bipTap.t);bipTap.t=setTimeout(()=>{const x=$('#bipHero');if(x)x.innerHTML=mascot('idle','live')},1400)}
 
 /* ---- Sessions de réception ---- */
 function gen(kind){
@@ -885,7 +1257,7 @@ document.addEventListener('change',e=>{const k=e.target.dataset&&e.target.datase
 
 /* ============ ACTIONS ============ */
 const A={
-  tab:d=>{stop();S.sess=null;S.quiz=null;S.les=null;S.tab=d.k;render();window.scrollTo(0,0)},
+  tab:d=>{stop();S.sess=null;S.quiz=null;S.les=null;S.daily=null;S.chal=null;S.comp=null;S.tab=d.k;if(d.k==='friends'&&SOC.uid&&Date.now()-SOC.last>15000)socRefresh(false);render();window.scrollTo(0,0)},
   hear:d=>play(d.t),
   sess:d=>startSess(d.k),
   quiz:d=>startQuiz(d.k),
@@ -900,6 +1272,17 @@ const A={
   ltile:d=>{const z=S.les;if(z.st!=='ask'||z.ans.includes(+d.i))return;z.ans.push(+d.i);render()},
   lunt:d=>{const z=S.les;if(z.st!=='ask')return;z.ans.splice(+d.i,1);render()},
   lcheck:lCheck,lnext:lNext,
+  bip:bipTap,
+  daily:startDaily,dplay:dPlay,dcheck:dCheck,dnext:dNext,dclose:()=>{stop();S.daily=null;render()},
+  bcard:d=>{const c=SOC.ch.find(x=>x.id===d.id);if(!c)return;if(!c.opened_at)bottleArrive(c);else openBottle(c.id)},
+  bchal:d=>openBottle(d.id),ovclose:closeOv,ovskip:ovSkip,
+  cplay:cPlay,csubmit:cSubmit,cclose:()=>{stop();S.chal=null;render()},
+  comp:d=>{if(!SOC.friends.length){toast('Ajoute d\'abord un ami');return}startComp(d.to||(SOC.friends.length===1?SOC.friends[0].id:null),d.re)},
+  compto:d=>{S.comp.to=d.to;const tx=$('#ctext');if(tx)S.comp.text=CLEAN(tx.value).trim();render()},
+  compclose:()=>{stop();S.comp=null;render()},
+  cprevplay:()=>{const z=S.comp;if(z&&z.text)play(z.text,{wpm:z.wpm})},
+  csend:cSend,
+  join:socJoin,addf:addFriend,sharecode:shareCode,socref:()=>{socRefresh(true);toast('Actualisé')},
   replay:()=>{const s=S.sess;if(s)play(s.items[s.i])},
   submit:submitAns,next:nextItem,
   qplay:()=>{const z=S.quiz;play(z.audio||z.qs[z.i].play||'')},
@@ -914,16 +1297,17 @@ const A={
   reset:()=>{if(!confirm('Tout réinitialiser : caractères, points, niveau, série et statistiques ?'))return;prog=PROG0();saveProg();render()}
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;try{ac()}catch{}A[el.dataset.a]&&A[el.dataset.a](el.dataset)});
-document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(S.les){e.preventDefault();const z=S.les;if(z.done)A.lquit();else if(z.st==='ask')lCheck();else lNext();return}if(S.sess&&!S.sess.done){e.preventDefault();S.sess.res?nextItem():submitAns()}});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();keyOff()}});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(S.daily){e.preventDefault();const z=S.daily;if(z.done)A.dclose();else if(z.st==='ask')dCheck();else dNext();return}if(S.chal&&!S.chal.res&&e.target.id==='cans'&&!e.shiftKey){e.preventDefault();cSubmit();return}if(e.target.id==='fcode'){addFriend();return}if(e.target.id==='uname'){socJoin();return}if(S.les){e.preventDefault();const z=S.les;if(z.done)A.lquit();else if(z.st==='ask')lCheck();else lNext();return}if(S.sess&&!S.sess.done){e.preventDefault();S.sess.res?nextItem():submitAns()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();keyOff()}else if(SOC.uid&&Date.now()-SOC.last>20000)socRefresh(true)});
 
 /* Bouton retour Android : quitte l'exercice, puis revient à Apprendre, puis ferme l'app */
 if(AppP&&AppP.addListener){try{Promise.resolve(AppP.addListener('backButton',()=>{
-  if(S.les)A.lquit();else if(S.sess||S.quiz)A.quit();else if(S.tab!=='learn')A.tab({k:'learn'});else AppP.exitApp&&AppP.exitApp();
+  if($('#ov').classList.contains('on'))closeOv();else if(S.les)A.lquit();else if(S.daily)A.dclose();else if(S.chal)A.cclose();else if(S.comp)A.compclose();else if(S.sess||S.quiz)A.quit();else if(S.tab==='tr')A.tab({k:'practice'});else if(S.tab!=='learn')A.tab({k:'learn'});else AppP.exitApp&&AppP.exitApp();
 })).catch(()=>{})}catch{}}
 /* Version web : service worker (hors ligne + installation sur l'écran d'accueil) */
 if(!native&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 render();
+socInit();
 </script>
 </body>
 </html>
