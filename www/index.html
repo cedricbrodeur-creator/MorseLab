@@ -355,6 +355,7 @@ main.les{padding-bottom:200px}
 .me b{font-size:19px;font-weight:680;letter-spacing:-.01em}
 .code{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--s2);border:1px dashed var(--line2)}
 .code b{font:700 24px var(--mono);letter-spacing:.22em;color:var(--ac)}
+.code b.blur{filter:blur(7px);user-select:none}
 .addf{display:flex;gap:8px}
 .addf input{flex:1;font:700 18px var(--mono)!important;letter-spacing:.2em;text-transform:uppercase}
 .addf .btn{width:auto;margin:0;padding:0 18px}
@@ -500,7 +501,6 @@ const ICONS={
   share:'<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><circle cx="12" cy="15" r="1.5" fill="currentColor"/>',
-  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
   trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7"/>'
 };
 const ic=(n,c='i')=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
@@ -822,7 +822,7 @@ async function socRefresh(auto){if(!SOC.on||!SOC.uid)return;SOC.loading=true;
   SOC.loading=false;
   if(!busyView()&&!$('#ov').classList.contains('on')&&(S.tab==='learn'||S.tab==='friends'))render();
   else if(!busyView())renderNav();
-  if(SOC.me)pushProgress(true);
+  if(SOC.me){pushProgress(true);ensureRecov()}
   if(auto)maybeBottle()}
 async function socJoin(){const el=$('#uname'),name=el?el.value.trim():'';
   if(name.length<2){toast('Choisis un pseudo d\'au moins 2 caractères');return}
@@ -835,9 +835,9 @@ async function socJoin(){const el=$('#uname'),name=el?el.value.trim():'';
 let pushT=null;
 function pushProgress(now){if(!SOC.on||!SOC.me)return;clearTimeout(pushT);
   pushT=setTimeout(()=>rpc('save_progress',{p_data:prog,p_xp:prog.xp,p_level:levelOf(prog.xp).l,p_streak:streakNow(),p_chars:prog.lv,p_lessons:Object.values(prog.path).reduce((a,b)=>a+b,0)}).catch(()=>{}),now?0:1500)}
-/* ---- Compte par e-mail : sauvegarde cloud + récupération après réinstallation ----
-   Lier (compte anonyme -> e-mail) : updateUser({email}) puis verifyOtp(type 'email_change').
-   Retrouver (nouvel appareil) : signInWithOtp(shouldCreateUser:false) puis verifyOtp(type 'email').
+/* ---- Code de récupération (sans e-mail) : retrouver son compte après une réinstallation ----
+   Le serveur génère un code de 12 caractères (new_recovery_code) ; l'app le garde localement pour l'afficher.
+   Sur un nouvel appareil : connexion anonyme puis claim_account(code) rattache le profil, les amis et la sauvegarde.
    Règle de fusion : la progression qui a le plus de points l'emporte. */
 async function cloudRestore(){if(!SOC.uid)return false;
   try{const{data,error}=await sbc().from('saves').select('data').maybeSingle();if(error)throw error;
@@ -845,44 +845,31 @@ async function cloudRestore(){if(!SOC.uid)return false;
     if(c&&typeof c.xp==='number'&&c.xp>(prog.xp||0)){prog=Object.assign(PROG0(),c);saveProg();toast('Progression restaurée depuis ton compte');return true}}
   catch(e){}
   return false}
-function authErr(m){m=String(m||'');
-  if(/signups? not allowed|user not found/i.test(m))return 'Aucun compte n\'est lié à cet e-mail';
-  if(/already (been )?registered|already exists|email_exists/i.test(m))return 'Cet e-mail est déjà lié à un compte : utilise « J\'ai déjà un compte »';
-  if(/expired|invalid.*(otp|token)|token.*(invalid|expired)/i.test(m))return 'Code invalide ou expiré';
-  if(/rate limit|security purposes|too many/i.test(m))return 'Trop de demandes : réessaie dans une minute';
-  if(/sending|smtp|email.*(send|deliver)/i.test(m))return 'L\'e-mail n\'a pas pu être envoyé (réglage e-mail de Supabase)';
-  return m}
-async function authSend(mode){const el=$('#aemail'),email=el?el.value.trim().toLowerCase():(SOC.auth&&SOC.auth.email)||'';
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('Adresse e-mail invalide');return}
-  SOC.auth={mode,step:'email',email,busy:true};render();
-  try{const sb=sbc();
-    const r=mode==='link'?await sb.auth.updateUser({email}):await sb.auth.signInWithOtp({email,options:{shouldCreateUser:false}});
-    if(r.error)throw r.error;SOC.auth={mode,step:'code',email,busy:false};toast('Code envoyé ! Regarde tes e-mails.')}
-  catch(e){SOC.auth.busy=false;toast(authErr(e.message))}
-  render();const c=$('#acode');c&&c.focus()}
-async function authVerify(){const a=SOC.auth,el=$('#acode'),token=el?el.value.replace(/\D/g,''):'';
-  if(!a||token.length<6){toast('Entre le code reçu par e-mail');return}
-  a.busy=true;render();
-  try{const r=await sbc().auth.verifyOtp({email:a.email,token,type:a.mode==='link'?'email_change':'email'});if(r.error)throw r.error;
-    const u=r.data.user||(r.data.session&&r.data.session.user);SOC.user=u;SOC.uid=u.id;SOC.auth=null;
-    if(a.mode==='login')await cloudRestore();
-    await socRefresh(false);pushProgress(true);
-    toast(a.mode==='link'?'Compte sécurisé ! Ta progression est sauvegardée.':'Bon retour ! Tout est récupéré.')}
-  catch(e){a.busy=false;toast(authErr(e.message))}
-  render()}
-function authBox(mode){const a=SOC.auth&&SOC.auth.mode===mode?SOC.auth:null;
-  if(a&&a.step==='code')return `<div class="card"><span class="kick">Code envoyé à ${esc(a.email)}</span>
-    <input type="text" id="acode" inputmode="numeric" maxlength="10" autocomplete="one-time-code" placeholder="Code reçu" style="margin-top:10px;font:700 22px var(--mono);letter-spacing:.3em;text-align:center">
-    <button class="btn" data-a="averify" ${a.busy?'disabled':''}>${a.busy?'Vérification…':'Valider'}</button>
-    <div class="row" style="margin-top:10px"><button class="ghost" data-a="aback">Changer d'e-mail</button><button class="ghost" data-a="asend" data-m="${mode}">Renvoyer</button></div>
-    <p class="note">Le code peut mettre une minute à arriver. Pense à regarder les courriers indésirables.</p></div>`;
-  return `<div class="card"><div class="me"><span style="flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--ac-dim);color:var(--ac)">${ic('mail')}</span><b style="font-size:17px">${mode==='link'?'Sécurise ton compte':'Retrouver mon compte'}</b></div>
-    <p class="note">${mode==='link'?'Ajoute ton e-mail pour retrouver ta progression, tes amis et ton code ami si tu changes de téléphone ou réinstalles l\'app.':'Entre l\'e-mail lié à ton compte : tu recevras un code pour tout récupérer.'}</p>
-    <input type="email" id="aemail" autocomplete="email" inputmode="email" placeholder="ton@email.com" value="${a?esc(a.email):''}" style="margin-top:6px;font-size:17px">
-    <button class="btn" data-a="asend" data-m="${mode}" ${a&&a.busy?'disabled':''}>${ic('mail')}${a&&a.busy?'Envoi…':'Recevoir un code'}</button></div>`}
-function acctCard(){const u=SOC.user;
-  if(u&&u.email&&!u.is_anonymous)return `<div class="card feat"><span class="fi" style="background:var(--ok-bg);color:var(--ok)">${ic('check')}</span><div class="t"><b>Compte sécurisé</b><span>${esc(u.email)} · progression sauvegardée</span></div></div>`;
-  return authBox('link')}
+const recovKey=()=>'recov-'+SOC.uid;
+let recovBusy=false;
+async function ensureRecov(){if(!SOC.me||recovBusy||store.get(recovKey(),null))return;recovBusy=true;
+  try{const c=await rpc('new_recovery_code');store.set(recovKey(),c);if(S.tab==='friends'&&!busyView())render()}catch(e){}
+  recovBusy=false}
+const fmtRecov=n=>n.slice(0,4)+'-'+n.slice(4,8)+'-'+n.slice(8,12);
+async function claimAccount(){const el=$('#rcode'),n=(el?el.value:'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(n.length!==12){toast('Le code de récupération fait 12 caractères');return}
+  if(SOC.busy)return;SOC.busy=true;render();
+  try{const sb=sbc();let{data}=await sb.auth.getSession();
+    if(!data.session){const r=await sb.auth.signInAnonymously();if(r.error)throw new Error(r.error.message.includes('nonymous')?'Les connexions anonymes sont désactivées dans Supabase':r.error.message);data=r.data}
+    SOC.user=(data.session||data).user;SOC.uid=SOC.user.id;
+    await rpc('claim_account',{p_code:n});store.set(recovKey(),fmtRecov(n));SOC.auth=null;
+    await cloudRestore();await socRefresh(false);toast('Bon retour ! Tout est récupéré.')}
+  catch(e){toast(e.message)}
+  SOC.busy=false;render()}
+function recovCard(){const c=store.get(recovKey(),null);
+  return `<div class="card"><div class="me"><span style="flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--ac-dim);color:var(--ac)">${ic('lock')}</span><b style="font-size:17px">Code de récupération</b></div>
+    <p class="note">Garde-le précieusement (capture d'écran ou note). Il te permet de retrouver ta progression, ton code ami et tes amis si tu réinstalles l'app ou changes de téléphone. Ne le donne à personne.</p>
+    ${c?`<div class="code" style="margin-top:10px"><b class="${S.showRc?'':'blur'}" style="font-size:19px;letter-spacing:.14em">${esc(c)}</b><button class="ghost" data-a="rcshow">${ic(S.showRc?'copy':'lock')}${S.showRc?'Copier':'Afficher'}</button></div>`
+      :`<p class="note">Création du code…</p>`}</div>`}
+function recovLogin(){return `<div class="card"><span class="kick">Code de récupération</span>
+    <input type="text" id="rcode" maxlength="16" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX" style="margin-top:10px;font:700 21px var(--mono);letter-spacing:.14em;text-align:center;text-transform:uppercase">
+    <button class="btn" data-a="rclaim" ${SOC.busy?'disabled':''}>${SOC.busy?'Récupération…':'Récupérer mon compte'}</button>
+    <p class="note">C'est le code affiché dans l'onglet Amis de ton ancien appareil.</p></div>`}
 
 const incoming=()=>SOC.ch.filter(c=>c.to_id===SOC.uid&&!c.completed_at);
 const nameOf=id=>id===SOC.uid?'Toi':((SOC.friends.find(f=>f.id===id)||{}).username||'Un ami');
@@ -1093,15 +1080,15 @@ function vFriends(){
     <div class="card empty">${mascot('sad')}<b>Les fonctions en ligne ne sont pas activées</b><p class="note">Il manque la configuration Supabase dans <span class="mono">www/config.js</span>.</p></div>
     <h2>Mes statistiques</h2>${progCard()}`;
   if(!SOC.me&&SOC.auth&&SOC.auth.mode==='login')return `<h1>Amis</h1>
-    <div class="hello">${mascot('idle','live')}<div class="bubble">Content de te revoir ! Je retrouve ta progression et tes amis.</div></div>
-    ${authBox('login')}<button class="btn sec" data-a="acancel">Retour</button>`;
+    <div class="hello">${mascot('idle','live')}<div class="bubble">Content de te revoir ! Entre ton code de récupération et je retrouve tout.</div></div>
+    ${recovLogin()}<button class="btn sec" data-a="acancel">Retour</button>`;
   if(!SOC.me)return `<h1>Amis</h1>
     <div class="hello">${mascot('happy','live')}<div class="bubble">Choisis un pseudo et défie tes amis avec des <b>bouteilles à la mer</b> en Morse !</div></div>
     <div class="card"><span class="kick">Ton pseudo</span>
       <input type="text" id="uname" maxlength="20" autocomplete="off" placeholder="Ex : Cédric" style="margin-top:10px;font-size:18px">
       <button class="btn" data-a="join" ${SOC.busy?'disabled':''}>${SOC.busy?'Création…':'Créer mon profil'}</button>
       <p class="note">Pas besoin d'e-mail pour commencer. Tes amis verront ton pseudo et ta progression.</p></div>
-    <button class="btn sec" data-a="alogin">${ic('mail')}J'ai déjà un compte</button>
+    <button class="btn sec" data-a="alogin">${ic('lock')}J'ai déjà un compte</button>
     <h2>Mes statistiques</h2>${progCard()}`;
   const me=SOC.me,inc=incoming(),sent=SOC.ch.filter(c=>c.from_id===SOC.uid).slice(0,6),got=SOC.ch.filter(c=>c.to_id===SOC.uid&&c.completed_at).slice(0,4),board=dailyBoard();
   const st=c=>c.completed_at?`<span class="pill ok">décodée · ${c.score} %</span>`:c.opened_at?`<span class="pill ac">ramassée</span>`:`<span class="pill">en mer</span>`;
@@ -1110,7 +1097,7 @@ function vFriends(){
   <div class="card"><div class="me">${avatar(me,'lg')}<div style="flex:1"><b>${esc(me.username)}</b><div class="muted">Niv. ${levelOf(prog.xp).l} · ${levelOf(prog.xp).rank}</div></div>
     <button class="iconb" data-a="socref" aria-label="Actualiser">${ic('replay')}</button></div>
     <div class="code"><div><span class="kick">Mon code ami</span><br><b>${esc(me.friend_code)}</b></div><button class="ghost" data-a="sharecode">${ic(navigator.share?'share':'copy')}${navigator.share?'Partager':'Copier'}</button></div></div>
-  ${acctCard()}
+  ${recovCard()}
   <h2>Ajouter un ami</h2>
   <div class="addf"><input type="text" id="fcode" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="CODE"><button class="btn" data-a="addf">${ic('plus')}Ajouter</button></div>
   ${inc.length?`<h2>Bouteilles reçues</h2>${bottleCards()}`:''}
@@ -1341,8 +1328,8 @@ const A={
   cprevplay:()=>{const z=S.comp;if(z&&z.text)play(z.text,{wpm:z.wpm})},
   csend:cSend,
   join:socJoin,addf:addFriend,
-  asend:d=>authSend(d.m),averify:authVerify,alogin:()=>{SOC.auth={mode:'login',step:'email'};render()},acancel:()=>{SOC.auth=null;render()},
-  aback:()=>{if(SOC.auth)SOC.auth.step='email';render()},sharecode:shareCode,socref:()=>{socRefresh(true);toast('Actualisé')},
+  rclaim:claimAccount,rcshow:()=>{const c=store.get(recovKey(),null);if(!S.showRc){S.showRc=true;render();return}try{navigator.clipboard.writeText(c).then(()=>toast('Code copié'),()=>toast(c))}catch{toast(c)}},alogin:()=>{SOC.auth={mode:'login'};render()},acancel:()=>{SOC.auth=null;render()},
+sharecode:shareCode,socref:()=>{socRefresh(true);toast('Actualisé')},
   replay:()=>{const s=S.sess;if(s)play(s.items[s.i])},
   submit:submitAns,next:nextItem,
   qplay:()=>{const z=S.quiz;play(z.audio||z.qs[z.i].play||'')},
@@ -1357,7 +1344,7 @@ const A={
   reset:()=>{if(!confirm('Tout réinitialiser : caractères, points, niveau, série et statistiques ?'))return;prog=PROG0();saveProg();render()}
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;try{ac()}catch{}A[el.dataset.a]&&A[el.dataset.a](el.dataset)});
-document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(S.daily){e.preventDefault();const z=S.daily;if(z.done)A.dclose();else if(z.st==='ask')dCheck();else dNext();return}if(S.chal&&!S.chal.res&&e.target.id==='cans'&&!e.shiftKey){e.preventDefault();cSubmit();return}if(e.target.id==='fcode'){addFriend();return}if(e.target.id==='aemail'){const b=document.querySelector('[data-a="asend"]');if(b)authSend(b.dataset.m);return}if(e.target.id==='acode'){authVerify();return}if(e.target.id==='uname'){socJoin();return}if(S.les){e.preventDefault();const z=S.les;if(z.done)A.lquit();else if(z.st==='ask')lCheck();else lNext();return}if(S.sess&&!S.sess.done){e.preventDefault();S.sess.res?nextItem():submitAns()}});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(S.daily){e.preventDefault();const z=S.daily;if(z.done)A.dclose();else if(z.st==='ask')dCheck();else dNext();return}if(S.chal&&!S.chal.res&&e.target.id==='cans'&&!e.shiftKey){e.preventDefault();cSubmit();return}if(e.target.id==='fcode'){addFriend();return}if(e.target.id==='rcode'){claimAccount();return}if(e.target.id==='uname'){socJoin();return}if(S.les){e.preventDefault();const z=S.les;if(z.done)A.lquit();else if(z.st==='ask')lCheck();else lNext();return}if(S.sess&&!S.sess.done){e.preventDefault();S.sess.res?nextItem():submitAns()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();keyOff()}else if(SOC.uid&&Date.now()-SOC.last>20000)socRefresh(true)});
 
 /* Bouton retour Android : quitte l'exercice, puis revient à Apprendre, puis ferme l'app */

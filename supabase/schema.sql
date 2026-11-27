@@ -265,6 +265,76 @@ begin
   perform public.sync_progress(p_xp, p_level, p_streak, p_chars, p_lessons);
 end $$;
 
+-- ---------------------------------------------------------------------
+-- CODE DE RÉCUPÉRATION (sans e-mail)
+-- Un code secret de 12 caractères, affiché dans l'app, permet de récupérer
+-- son compte après une réinstallation : le profil, les amis, les bouteilles,
+-- le défi du jour et la sauvegarde sont rattachés au nouvel appareil.
+-- Seule l'empreinte SHA-256 du code est stockée, jamais le code lui-même.
+-- ---------------------------------------------------------------------
+
+create table if not exists public.recovery (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  code_hash  text not null unique,
+  created_at timestamptz not null default now()
+);
+alter table public.recovery enable row level security;
+-- Aucune politique : table illisible depuis l'app, accessible uniquement aux fonctions ci-dessous
+revoke all on public.recovery from anon, authenticated;
+
+-- Les liens vers un profil suivent son identifiant quand le compte est récupéré
+alter table public.friendships   drop constraint if exists friendships_user_id_fkey,
+  add constraint friendships_user_id_fkey   foreign key (user_id)   references public.profiles(id) on delete cascade on update cascade;
+alter table public.friendships   drop constraint if exists friendships_friend_id_fkey,
+  add constraint friendships_friend_id_fkey foreign key (friend_id) references public.profiles(id) on delete cascade on update cascade;
+alter table public.challenges    drop constraint if exists challenges_from_id_fkey,
+  add constraint challenges_from_id_fkey    foreign key (from_id)   references public.profiles(id) on delete cascade on update cascade;
+alter table public.challenges    drop constraint if exists challenges_to_id_fkey,
+  add constraint challenges_to_id_fkey      foreign key (to_id)     references public.profiles(id) on delete cascade on update cascade;
+alter table public.daily_results drop constraint if exists daily_results_user_id_fkey,
+  add constraint daily_results_user_id_fkey foreign key (user_id)   references public.profiles(id) on delete cascade on update cascade;
+
+-- Crée (ou remplace) le code de récupération du joueur et le renvoie en clair UNE fois
+create or replace function public.new_recovery_code()
+returns text language plpgsql security definer set search_path = public, extensions as $$
+declare v text;
+begin
+  if auth.uid() is null then raise exception 'Non connecté'; end if;
+  if not exists (select 1 from public.profiles where id = auth.uid()) then raise exception 'Crée d''abord ton profil'; end if;
+  -- 12 caractères tirés au hasard (générateur cryptographique) parmi 32 : environ 60 bits
+  select string_agg(substr('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', (get_byte(b, i) & 31) + 1, 1), '' order by i)
+    into v from (select gen_random_bytes(12) as b) s, generate_series(0, 11) as i;
+  insert into public.recovery (user_id, code_hash)
+  values (auth.uid(), encode(digest(v, 'sha256'), 'hex'))
+  on conflict (user_id) do update set code_hash = excluded.code_hash, created_at = now();
+  return substr(v, 1, 4) || '-' || substr(v, 5, 4) || '-' || substr(v, 9, 4);
+end $$;
+
+-- Récupère un compte : rattache le profil (et tout ce qui en dépend) à l'appareil actuel
+create or replace function public.claim_account(p_code text)
+returns public.profiles language plpgsql security definer set search_path = public, extensions as $$
+declare v_old uuid; r public.profiles;
+        v_code text := upper(regexp_replace(coalesce(p_code, ''), '[^A-Za-z0-9]', '', 'g'));
+begin
+  if auth.uid() is null then raise exception 'Non connecté'; end if;
+  select user_id into v_old from public.recovery where code_hash = encode(digest(v_code, 'sha256'), 'hex');
+  if not found then
+    perform pg_sleep(1);  -- freine les essais au hasard
+    raise exception 'Code de récupération invalide';
+  end if;
+  if v_old = auth.uid() then
+    select * into r from public.profiles where id = v_old; return r;
+  end if;
+  -- profil vide éventuellement créé sur ce nouvel appareil : remplacé par le compte récupéré
+  delete from public.profiles where id = auth.uid();
+  delete from public.saves    where user_id = auth.uid();
+  delete from public.recovery where user_id = auth.uid();
+  update public.profiles set id = auth.uid(), updated_at = now() where id = v_old returning * into r;
+  update public.saves    set user_id = auth.uid() where user_id = v_old;
+  update public.recovery set user_id = auth.uid() where user_id = v_old;
+  return r;
+end $$;
+
 -- Droits d'exécution : seulement les joueurs connectés
 revoke execute on function public.is_friend(uuid, uuid)                        from public, anon;
 revoke execute on function public.ensure_profile(text)                         from public, anon;
@@ -276,6 +346,8 @@ revoke execute on function public.open_challenge(uuid)                         f
 revoke execute on function public.complete_challenge(uuid, text)               from public, anon;
 revoke execute on function public.submit_daily(date, int, int)                 from public, anon;
 revoke execute on function public.save_progress(jsonb, int, int, int, int, int) from public, anon;
+revoke execute on function public.new_recovery_code()                         from public, anon;
+revoke execute on function public.claim_account(text)                          from public, anon;
 
 grant execute on function public.is_friend(uuid, uuid)                         to authenticated;
 grant execute on function public.ensure_profile(text)                          to authenticated;
@@ -287,3 +359,5 @@ grant execute on function public.open_challenge(uuid)                          t
 grant execute on function public.complete_challenge(uuid, text)                to authenticated;
 grant execute on function public.submit_daily(date, int, int)                  to authenticated;
 grant execute on function public.save_progress(jsonb, int, int, int, int, int)  to authenticated;
+grant execute on function public.new_recovery_code()                          to authenticated;
+grant execute on function public.claim_account(text)                           to authenticated;
