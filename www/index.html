@@ -261,8 +261,7 @@ const ICONS={
   erase:'<path d="M9 5h11v14H9l-6-7z"/><path d="m12.5 9.5 5 5M17.5 9.5l-5 5"/>',
   shuffle:'<path d="M3 7h3.5c4.5 0 6.5 10 11 10H21"/><path d="M3 17h3.5c1.8 0 3-1.5 4.2-3.5M13.3 10.5C14.5 8.5 15.7 7 17.5 7H21"/><path d="m18.5 4.5 2.5 2.5-2.5 2.5M18.5 14.5l2.5 2.5-2.5 2.5"/>',
   replay:'<path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4.5v4h4"/>',
-  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
-  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.7"/>'
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>'
 };
 const ic=(n,c='i')=>`<svg class="${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
 const LOGO='<svg viewBox="0 0 26 12" aria-hidden="true"><circle cx="5" cy="6" r="4"/><rect x="11" y="2" width="15" height="8" rx="4"/></svg>';
@@ -420,7 +419,6 @@ function vLearn(){const lv=prog.lv,n=KOCH.length;
       :`<button class="chip lock" data-a="hear" data-t="${esc(c)}">${esc(c)}</button>`).join('')}</div>
     <button class="btn" data-a="sess" data-k="koch">${ic('play')}S'entraîner</button>
     <p class="note">Écoutez, tapez ce que vous entendez. ${lv<n?`Une session à 90 % ou plus débloque le caractère suivant (<b class="mono" style="color:var(--tx)">${esc(KOCH[lv])}</b>).`:'Tous les caractères sont débloqués.'} Touchez un caractère pour l'entendre.</p>
-    ${lv<n?`<button class="ghost" data-a="unlockall" style="margin-top:2px">${ic('unlock')}Tout débloquer</button>`:''}
   </div>
   ${weakCard()}
   <h2>Parcours</h2>
@@ -645,7 +643,6 @@ const A={
   kmode:d=>{cfg.keyer=d.k;saveCfg();render()},
   newtarget:()=>{S.target=pick(WORDS);S.tAward=false;decReset();S.fb='';S.fbc='';render()},
   kclear:()=>{decReset();S.fb='';S.fbc='';render()},
-  unlockall:()=>{if(!confirm(`Débloquer les ${KOCH.length} caractères ? Vous pourrez revenir en arrière dans Réglages.`))return;prog.lv=KOCH.length;saveProg();render()},
   trplay:()=>play(S.tr.text),trstop:stop,
   trcopy:()=>{const b=$('#cpy');const done=()=>{if(b){b.innerHTML=`${ic('check')}Copié`;setTimeout(()=>{if(b.isConnected)b.innerHTML=`${ic('copy')}Copier`},1400)}};
     try{navigator.clipboard.writeText(toMorse(S.tr.text)).then(done,()=>{})}catch{}},
